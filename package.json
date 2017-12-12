@@ -1,0 +1,19 @@
+{
+  "name": "webrtc",
+  "version": "1.0.0",
+  "description": "test WebRTC",
+  "dependencies": {
+    "@types/node": "^8.0.53",
+    "@types/peerjs": "0.0.29",
+    "@types/webrtc": "0.0.22",
+    "node-static": "^0.7.10",
+    "peer": "^0.2.8",
+    "peerjs": "^0.3.14"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

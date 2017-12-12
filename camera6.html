@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8">
+        <title>camera</title>
+        <script src="camera6.js"></script>
+        <script src="https://knak-lab.ihc.kanazawa-it.ac.jp/~nakazawa/peer.js"></script>
+    </head>
+    <body onload="start()">
+        <div>
+            <h3>ビデオチャット</h3>
+            <video id="myVideo" width=400 height=300 autoplay playsinline></video>
+            <video id="yourVideo" width="400" height = "300" autoplay playsinline></video></br>
+            <button id = "start" >カメラON</button>
+            <p>あなたのビデオチャット用PeerIDは <span id="peerId"></span> です</p>
+            <p>相手のPeerIDは  <spna id="callId"></span> です</p></br>
+            <form name="numberID" action="#">
+                <input type="text" id="number">
+                <input id="send_btn" type ="button" value="相手のIDを送信">
+            </form></br></br>
+        </div>
+        <div>
+            <h3>お絵かきビデオチャット</h3>
+            <video id="myCanvasVideo" width=400 height=300 autoplay playsinline></video>
+            <video id="yourCanvasVideo" width="400" height = "300" autoplay playsinline></video></br>
+            <p>あなたのお絵かき用PeerIDは <span id="canvas_peerId"></span> です</p>
+            <p>相手のPeerIDは  <spna id="canvas_callId"></span> です</p></br>
+            <form name="numberID" action="#">
+                <input type="text" id="canvas_number">
+                <input id="send_canvas_btn" type ="button" value="相手のIDを送信">
+            </form></br></br>
+        </div>
+        <div>
+                <h3>お絵かき用キャンバス</h3></br>
+                <canvas id = "picCanvas"  width=400 height=300 background-color:yellow></canvas></br>  
+        </div> 
+        <div>
+            <h3>テキストチャット</h3>
+            <p>あなたのテキストチャット用PeerIDは <span id="text_peerId"></span> です</p>
+            <p>相手のPeerIDは  <spna id="text_callId"></span> です</p></br>
+            <form name="numberID" action="#">
+                <input type="text" id="text_number">
+                <input id="send_text_btn" type ="button" value="相手のIDを送信">
+            </form> </br></br>     
+            <button id= "callEnd" type = "button">End Call</button></br>
+        </div>
+        <div>   
+            <h3>チャット</h3> 
+            <input type="text" placeholder="Chat Message" id="message">
+            <button id = "textSend" type = "button">Send</button>
+            <div id="chat"></div>
+	</div> 
+    </body>
+</html>
