@@ -35,6 +35,7 @@ var HandlePeer = /** @class */ (function () {
             connection.on('data', function (data) { return handleData(connection.metadata.name, data); });
         });
     };
+    //todo セッター　ゲッター
     HandlePeer.prototype.getName = function () {
         return this.name;
     };
@@ -63,8 +64,6 @@ var HandlePeer = /** @class */ (function () {
         call.on('stream', function (stream) { return handleStream(stream); });
     };
     //相手にコネクションを送信する
-    // todo
-    // public connect(handleData: any) {
     HandlePeer.prototype.connect = function (message) {
         var _this = this;
         this.dataConnection = this.peer.connect(this.destId, {
@@ -75,11 +74,7 @@ var HandlePeer = /** @class */ (function () {
         this.dataConnection.on('open', function () {
             _this.dataConnection.send(message);
         });
-        // this.dataConnection.on('data', handleData); //todo コールバックの引数
     };
-    // public sendMessage(message: string) {
-    //     this.dataConnection.send(message);
-    // }
     HandlePeer.prototype.reset = function () {
         //todo localStreamのリセット確認
         this.localStream.getVideoTracks()[0].stop();
@@ -87,10 +82,6 @@ var HandlePeer = /** @class */ (function () {
         this.localStream = null;
         this.peer.disconnect(); //サーバとのの接続をクローズし、既存の接続はそのまま
         this.peer.destroy(); //サーバとのの接続をクローズし、すべての既存の接続を終了する
-    };
-    HandlePeer.prototype.setVisible = function (id, visible) {
-        var element = document.getElementById(id);
-        visible ? element.style.display = 'block' : element.style.display = 'none';
     };
     return HandlePeer;
 }());

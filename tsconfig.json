@@ -54,6 +54,7 @@
   },
   "files": [
     "HandlePeer.ts",
-    "P2PVideoChat.ts"
+    "P2PVideoChat.ts",
+    "MultiVideoChat.ts"
   ]
 }

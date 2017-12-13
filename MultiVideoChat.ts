@@ -1,5 +1,5 @@
 // P2PVideoChat.js
-class P2PVideoChat {
+class MultiVideoChat {
     private handler: HandlePeer;
 
     public start() {
@@ -108,6 +108,6 @@ class P2PVideoChat {
 }
 
 window.onload = () => {
-    const vc: P2PVideoChat = new P2PVideoChat();
-    vc.start();
+    const multi: MultiVideoChat = new MultiVideoChat();
+    multi.start();
 }
