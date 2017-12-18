@@ -2,35 +2,42 @@
 class MultiVideoChat {
     private firstPeer: HandlePeer;
     private context: any;
+    private conposedStream: any;
 
     public start() {
         this.firstPeer = new HandlePeer();
-        this.firstPeer.peerOpened((id) => {
-            console.log(id);
-            const idElement = <HTMLElement>document.getElementById('peerid-first');
-            idElement.innerHTML = id;
-        });
-        this.firstPeer.peerError(console.error);
-        this.firstPeer.peerCalled()
-        .then((stream) => {
-            this.showVideoFirst(stream);
-        })
-        .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'))
+        this.firstPeer.opened()
+            .then((id: any) => {
+                console.log(id);
+                const idElement = <HTMLElement>document.getElementById('peerid-first');
+                idElement.innerHTML = id;
+            })
+            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
+        this.firstPeer.error()
+            .then((error: any) => console.error(error))
+            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
+        this.firstPeer.called()
+            .then((stream: any) => {
+                this.showVideoFirst(stream);
+                // this.firstPeer.calledAnswer(this.conposedStream(this.conposedStream));
+            })
+            // .then(() => this.firstPeer.calledAnswer(this.conposedStream(this.conposedStream)))
+            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
         this.firstPeer.getUserMedia()
             .then((stream: any) => {
                 this.showVideoSelf(stream);
             })
-            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'))
+            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
 
         this.loginEvent();
-        this.connectEvent();
+        this.callEvent();
         this.dissconnectEvent();
     }
 
     private loginEvent() {
-        this.setVisible('connect', false);
+        // this.setVisible('connect', false);
 
-        const login: HTMLElement = <HTMLInputElement>document.getElementById('loginbutton');
+        const login = <HTMLInputElement>document.getElementById('loginbutton');
         login.addEventListener('click', () => {
             const nameElement: HTMLInputElement = <HTMLInputElement>document.getElementById('name');
             const name: string = nameElement.value;
@@ -41,13 +48,13 @@ class MultiVideoChat {
                 const namebox: HTMLElement = <HTMLElement>document.getElementById('namebox');
                 namebox.innerHTML = name;
 
-                this.setVisible('login', false);
-                this.setVisible('connect', true);
+                // this.setVisible('login', false);
+                // this.setVisible('connect', true);
             }
         });
     }
 
-    private connectEvent() {
+    private callEvent() {
         const connectFirst: HTMLElement = <HTMLInputElement>document.getElementById('connectbutton-first');
         connectFirst.addEventListener('click', () => {
             const destIdElement: HTMLInputElement = <HTMLInputElement>document.getElementById('destid-first');
@@ -55,11 +62,8 @@ class MultiVideoChat {
 
             this.firstPeer.setDestId(destId);
             this.firstPeer.call()
-                .then((stream: any) => {
-                    console.log(this);
-                    this.showVideoFirst(stream)
-                })
-                .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'))
+                .then((stream: any) => this.showVideoFirst(stream))
+                .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
 
             //todo 接続を失敗した場合画面の遷移を行わない
             // this.setVisible('connect', false);
@@ -85,19 +89,22 @@ class MultiVideoChat {
     }
 
     private showVideoFirst(stream: any) {
+        console.log("showVideoFirst");
         const video = <HTMLVideoElement>document.getElementById('video-first');
         video.src = URL.createObjectURL(stream);
         this.setCanvas(video, 1);
     }
 
     private setCanvas(video: HTMLVideoElement, number: number) {
-        const canvas = <HTMLCanvasElement>document.getElementById('canvas');
+        //todo captureStream認識しない
+        const canvas: any = document.getElementById('canvas');
         const context = <CanvasRenderingContext2D>canvas.getContext('2d');
-        const cx = canvas.width - ((number  + 1) * video.width);
+        const cx = canvas.width - ((number + 1) * video.width);
         const cy = (number % 4) * video.height;
 
         canvas.style.transform = 'scaleX(-1)';
         context.drawImage(video, cx, cy, video.width, (video.width * video.videoHeight) / video.videoWidth);
+        this.conposedStream = canvas.captureStream();
         //todo setCanvasを引数にした場合型が合わずエラー
         requestAnimationFrame(() => this.setCanvas(video, number));
     }

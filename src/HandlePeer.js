@@ -8,24 +8,33 @@ class HandlePeer {
         };
         this.peer = new Peer(this.peerId, options);
     }
-    peerOpened(handleId) {
+    opened() {
         console.log('open');
-        this.peer.on('open', (id) => handleId(id));
+        return new Promise((resolve, reject) => {
+            this.peer.on('open', (id) => resolve(id));
+        });
     }
-    peerError(errorCallbadck) {
-        this.peer.on('error', (error) => errorCallbadck(error));
+    error() {
+        return new Promise((resolve, reject) => {
+            this.peer.on('error', (error) => resolve(error));
+        });
     }
-    peerCalled() {
+    called() {
         return new Promise((resolve, reject) => {
             this.peer.on('call', (call) => {
+                console.log('called from: ' + call.peer);
+                this.callConnection = call;
                 this.destId = call.peer;
-                console.log('call.peer: ' + call.peer);
-                call.on('stream', (stream) => resolve(stream));
                 call.answer(this.localStream);
+                call.on('stream', (stream) => resolve(stream));
             });
         });
     }
-    peerConnected(handleData) {
+    calledAnswer(stream) {
+        console.log("calledAnswer");
+        this.callConnection.answer(stream);
+    }
+    connected(handleData) {
         this.peer.on('connection', (connection) => {
             this.dataConnection = connection;
             this.destId = connection.peer;
@@ -53,12 +62,10 @@ class HandlePeer {
             .catch(error => console.error(error));
     }
     call() {
-        console.log('this.destId' + this.destId);
-        const call = this.peer.call(this.destId, this.localStream);
+        console.log('this.destId: ' + this.destId);
         return new Promise((resolve, jeject) => {
-            call.on('stream', (stream) => {
-                return stream;
-            });
+            const call = this.peer.call(this.destId, this.localStream);
+            call.on('stream', (stream) => resolve(stream));
         });
     }
     connect(message) {

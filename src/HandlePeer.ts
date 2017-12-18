@@ -6,6 +6,7 @@ class HandlePeer {
     private destId: number;
     private dataConnection: any;
     private localStream: any;
+    private callConnection: any;
 
     constructor() {
         this.peerId = String(Math.floor(Math.random() * 900) + 100);
@@ -16,33 +17,40 @@ class HandlePeer {
         this.peer = new Peer(this.peerId, options);
     }
 
-    // todo promise
-    public peerOpened(handleId: (id: string) => void) {
+    public opened() {
         console.log('open');
-        this.peer.on('open', (id: any) => handleId(id));
+        return new Promise((resolve, reject) => {
+            this.peer.on('open', (id: any) => resolve(id));
+        });
     }
 
-    //todo promise
-    public peerError(errorCallbadck: any) {
-        this.peer.on('error', (error: any) => errorCallbadck(error));
+    public error() {
+        return new Promise((resolve, reject) => {
+            this.peer.on('error', (error: any) => resolve(error))
+        });
     }
 
     //相手からのcallを受けた時にビデオの表示を行う
-    public peerCalled() {
+    public called() {
         return new Promise((resolve, reject) => {
             this.peer.on('call', (call: any) => {
+                console.log('called from: ' + call.peer);
+                this.callConnection = call;
                 this.destId = call.peer;
-                console.log('call.peer: ' + call.peer);
-                call.on('stream', (stream: any) => resolve(stream));
-                //todo 設定できるようにする
                 call.answer(this.localStream);
+                call.on('stream', (stream: any) => resolve(stream));
             });
         });
     }
 
+    public calledAnswer(stream: any) {
+        console.log("calledAnswer");
+        this.callConnection.answer(stream);
+    }
+
     //todo promise
     //相手からデータを受けた時にメッセージを表示する
-    public peerConnected(handleData: any) {
+    public connected(handleData: any) {
         this.peer.on('connection', (connection: any) => {
             this.dataConnection = connection;
             this.destId = connection.peer;
@@ -50,7 +58,6 @@ class HandlePeer {
         });
     }
 
-    //todo セッター　ゲッター
     public getName() {
         return this.name;
     }
@@ -78,12 +85,10 @@ class HandlePeer {
 
     //相手にコールする
     public call() {
-        console.log('this.destId' + this.destId);
-        const call = this.peer.call(this.destId, this.localStream);
+        console.log('this.destId: ' + this.destId);
         return new Promise((resolve, jeject) => {
-            call.on('stream', (stream: any) => {
-                return stream
-            });
+            const call = this.peer.call(this.destId, this.localStream);
+            call.on('stream', (stream: any) => resolve(stream));
         });
     }
 
