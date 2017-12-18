@@ -8,23 +8,22 @@ class MultiVideoChat {
             idElement.innerHTML = id;
         });
         this.firstPeer.peerError(console.error);
-        this.firstPeer.peerCalled(this.showVideoFirst);
+        this.firstPeer.peerCalled()
+            .then((stream) => {
+            this.showVideoFirst(stream);
+        })
+            .catch((reason) => console.log('Handle rejected promise (' + reason + ') here.'));
         this.firstPeer.getUserMedia()
             .then((stream) => {
-            console.log(stream);
             this.showVideoSelf(stream);
         })
             .catch((reason) => console.log('Handle rejected promise (' + reason + ') here.'));
-        this.secondPeer = new HandlePeer();
-        this.secondPeer.peerOpened((id) => {
-            console.log(id);
-            const idElement = document.getElementById('peerid-second');
-            idElement.innerHTML = id;
-        });
-        this.secondPeer.peerError(console.error);
-        this.secondPeer.peerCalled(this.showVideoSecond);
+        this.loginEvent();
+        this.connectEvent();
+        this.dissconnectEvent();
+    }
+    loginEvent() {
         this.setVisible('connect', false);
-        this.setVisible('chat', false);
         const login = document.getElementById('loginbutton');
         login.addEventListener('click', () => {
             const nameElement = document.getElementById('name');
@@ -36,53 +35,47 @@ class MultiVideoChat {
                 namebox.innerHTML = name;
                 this.setVisible('login', false);
                 this.setVisible('connect', true);
-                this.setVisible('chat', true);
             }
         });
+    }
+    connectEvent() {
         const connectFirst = document.getElementById('connectbutton-first');
         connectFirst.addEventListener('click', () => {
             const destIdElement = document.getElementById('destid-first');
             const destId = parseInt(destIdElement.value, 10);
             this.firstPeer.setDestId(destId);
-            this.firstPeer.call(this.showVideoFirst);
-            this.setVisible('chat', true);
+            this.firstPeer.call()
+                .then((stream) => {
+                console.log(this);
+                this.showVideoFirst(stream);
+            })
+                .catch((reason) => console.log('Handle rejected promise (' + reason + ') here.'));
         });
-        const connectSecond = document.getElementById('connectbutton-second');
-        connectSecond.addEventListener('click', () => {
-            const destIdElement = document.getElementById('destid-second');
-            const destId = parseInt(destIdElement.value, 10);
-            this.secondPeer.setDestId(destId);
-            this.secondPeer.call(this.showVideoSecond);
-            this.setVisible('chat', true);
-        });
+    }
+    dissconnectEvent() {
         const dissconnectFirst = document.getElementById('dissconnectbutton');
         dissconnectFirst.addEventListener('click', () => {
             this.firstPeer.reset();
         });
-        const dissconnectSecond = document.getElementById('dissconnectbutton');
-        dissconnectSecond.addEventListener('click', () => {
-            this.secondPeer.reset();
-        });
+    }
+    showVideoSelf(stream) {
+        const video = document.getElementById('video-self');
+        video.src = URL.createObjectURL(stream);
+        this.setCanvas(video, 0);
     }
     showVideoFirst(stream) {
         const video = document.getElementById('video-first');
         video.src = URL.createObjectURL(stream);
+        this.setCanvas(video, 1);
     }
-    showVideoSecond(stream) {
-        const video = document.getElementById('video-second');
-        video.src = URL.createObjectURL(stream);
-    }
-    showVideoSelf(stream) {
-        const video = document.getElementById('video-self');
-        console.log(video);
-        video.src = URL.createObjectURL(stream);
-        this.setCanvas(video, 0, 0);
-    }
-    setCanvas(video, cx, cy) {
+    setCanvas(video, number) {
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
+        const cx = canvas.width - ((number + 1) * video.width);
+        const cy = (number % 4) * video.height;
+        canvas.style.transform = 'scaleX(-1)';
         context.drawImage(video, cx, cy, video.width, (video.width * video.videoHeight) / video.videoWidth);
-        requestAnimationFrame(() => this.setCanvas(video, cx, cy));
+        requestAnimationFrame(() => this.setCanvas(video, number));
     }
     setVisible(id, visible) {
         const element = document.getElementById(id);

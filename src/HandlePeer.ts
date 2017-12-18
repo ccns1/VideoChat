@@ -16,25 +16,31 @@ class HandlePeer {
         this.peer = new Peer(this.peerId, options);
     }
 
+    // todo promise
     public peerOpened(handleId: (id: string) => void) {
         console.log('open');
         this.peer.on('open', (id: any) => handleId(id));
     }
 
+    //todo promise
     public peerError(errorCallbadck: any) {
         this.peer.on('error', (error: any) => errorCallbadck(error));
     }
 
     //相手からのcallを受けた時にビデオの表示を行う
-    public peerCalled(handleStream: any) {
-        this.peer.on('call', (call: any) => {
-            this.destId = call.peer;
-            console.log('call.peer: ' + call.peer);
-            call.answer(this.localStream);
-            call.on('stream', (stream: any) => { handleStream(stream) });
+    public peerCalled() {
+        return new Promise((resolve, reject) => {
+            this.peer.on('call', (call: any) => {
+                this.destId = call.peer;
+                console.log('call.peer: ' + call.peer);
+                call.on('stream', (stream: any) => resolve(stream));
+                //todo 設定できるようにする
+                call.answer(this.localStream);
+            });
         });
     }
 
+    //todo promise
     //相手からデータを受けた時にメッセージを表示する
     public peerConnected(handleData: any) {
         this.peer.on('connection', (connection: any) => {
@@ -61,43 +67,24 @@ class HandlePeer {
         return this.dataConnection.metadata.name;
     }
 
-    // public getUserMedia(successCallbak: any, errorCallbadck: any) {
-    //     const p = navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    //     p.then(stream => {
-    //         this.localStream = stream;
-    //         successCallbak(stream);
-    //     });
-    //     p.catch(error => errorCallbadck(error));
-    // }
-
     public getUserMedia() {
         return navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-        .then(stream => {
-            this.localStream = stream;
-            console.log(stream);
-            return stream;
-        })
-        .catch(error => console.error(error));
-        // const promise = navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        // promise.then(stream => {
-        //     this.localStream = stream;
-        //     return stream;
-
-        // });
-        // promise.catch(error => console.error(error));
-        // promise.then(stream => {
-        //     return new Promise((resolve, reject) => {
-        //         console.log(stream);
-        //         resolve(this.localStream);
-        //     });
-        // })
+            .then(stream => {
+                this.localStream = stream;
+                return stream;
+            })
+            .catch(error => console.error(error));
     }
 
     //相手にコールする
-    public call(handleStream: any) {
+    public call() {
         console.log('this.destId' + this.destId);
         const call = this.peer.call(this.destId, this.localStream);
-        call.on('stream', (stream: any) => handleStream(stream));
+        return new Promise((resolve, jeject) => {
+            call.on('stream', (stream: any) => {
+                return stream
+            });
+        });
     }
 
     //相手にコネクションを送信する

@@ -13,15 +13,13 @@
 
 <body>
     <h1>P2P Video Chat</h1>
-    <!-- todo changed -->
-    <video id="video-first" width="400" autoplay></video>
-    <!-- todo changed -->
-    <video id="video-second" width="400" autoplay></video>
-    <div id="wrap">
-        <video id="video-self" width="200" autoplay></video>
-    </div>
+    self
+    <video id="video-self" width="200" autoplay></video>
+    first
+    <video id="video-first" width="200" autoplay></video>
     <div>
-        <canvas id="canvas"></canvas>
+        <h3>合成</h3>
+        <canvas id="canvas" width="800"></canvas>
     </div>
     <div id="login">
         <div>
@@ -33,13 +31,10 @@
         </div>
     </div>
     <div id="connect">
-        <!-- todo changed -->
         <div>
             <span id="namebox"></span>さんのPeerIDは
             <span id="peerid-first"></span>です
-            <span id="peerid-second"></span>です
         </div>
-        <!-- todo changed -->
         <div id="connect-fist">
             <div>
                 <label for="destid">接続先PeerID: </label>
@@ -49,25 +44,7 @@
                 <input type="button" id="connectbutton-first" value="connect">
             </div>
         </div>
-        <!-- todo changed -->
-        <div id="connect-second">
-            <div>
-                <label for="destid">接続先PeerID: </label>
-                <input type="text" id="destid-second" name="destid">
-            </div>
-            <div>
-                <input type="button" id="connectbutton-second" value="connect">
-            </div>
-        </div>
     </div>
-    <div id="chat">
-        <div>
-            <label for="message">メッセージ: </label>
-            <input type="text" id="message" name="message">
-        </div>
-        <input type="button" id="sendmessage" value="send">
-    </div>
-    <ul id="list"></ul>
     <div id="disconnect">
         <input type="button" id="dissconnectbutton" value="disconect">
     </div>
