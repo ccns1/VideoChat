@@ -1,13 +1,10 @@
 // P2PVideoChat.js
-class MultiVideoChat {
+class MultiVideoChatClient {
     private firstPeer: HandlePeer;
     private context: any;
     private conposedStream: any;
 
     public start() {
-        //todo 呼び出し場所
-        this.test();
-
         this.firstPeer = new HandlePeer();
         this.firstPeer.opened()
             .then((id: any) => {
@@ -20,7 +17,7 @@ class MultiVideoChat {
             .then((error: any) => console.error(error))
             .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
             // this.firstPeer.callConnected()
-            this.firstPeer.called(this.conposedStream)
+            this.firstPeer.called()
             .then((stream: any) => {
                 // this.firstPeer.calledAnswer(this.conposedStream);
                 this.showVideoFirst(stream);
@@ -58,7 +55,6 @@ class MultiVideoChat {
         });
     }
 
-        // todo ホストのコールはない
     private callEvent() {
         const connectFirst: HTMLElement = <HTMLInputElement>document.getElementById('connectbutton-first');
         connectFirst.addEventListener('click', () => {
@@ -90,36 +86,12 @@ class MultiVideoChat {
     private showVideoSelf(stream: any) {
         const video = <HTMLVideoElement>document.getElementById('video-self');
         video.src = URL.createObjectURL(stream);
-        this.setCanvas(video, 0);
     }
 
     private showVideoFirst(stream: any) {
-        console.log("showVideoFirst");
+        console.log("showVideoHost");
         const video = <HTMLVideoElement>document.getElementById('video-first');
         video.src = URL.createObjectURL(stream);
-        this.setCanvas(video, 1);
-    }
-
-    private setCanvas(video: HTMLVideoElement, number: number) {
-        //todo captureStream認識しない
-        const canvas: any = document.getElementById('canvas');
-        const context = <CanvasRenderingContext2D>canvas.getContext('2d');
-        const cx = canvas.width - ((number + 1) * video.width);
-        const cy = (number % 4) * video.height;
-
-        canvas.style.transform = 'scaleX(-1)';
-        context.drawImage(video, cx, cy, video.width, (video.width * video.videoHeight) / video.videoWidth);
-        //todo setCanvasを引数にした場合型が合わずエラー
-        requestAnimationFrame(() => this.setCanvas(video, number));
-    }
-
-    private test() {
-        console.log("setconposedstream");
-        const canvas: any = document.getElementById('canvas');
-        this.conposedStream = canvas.captureStream();
-
-        const conposed = <HTMLVideoElement>document.getElementById('conposed');
-        conposed.src = URL.createObjectURL(this.conposedStream);
     }
 
     private setVisible(id: string, visible: boolean) {
@@ -129,6 +101,6 @@ class MultiVideoChat {
 }
 
 window.onload = () => {
-    const multi: MultiVideoChat = new MultiVideoChat();
-    multi.start();
+    const client: MultiVideoChatClient = new MultiVideoChatClient();
+    client.start();
 };

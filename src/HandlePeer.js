@@ -19,20 +19,31 @@ class HandlePeer {
             this.peer.on('error', (error) => resolve(error));
         });
     }
-    called() {
+    called(stream) {
         return new Promise((resolve, reject) => {
             this.peer.on('call', (call) => {
                 console.log('called from: ' + call.peer);
                 this.callConnection = call;
                 this.destId = call.peer;
+                if (stream) {
+                    console.log("answer conposed stream");
+                    call.answer(stream);
+                }
                 call.answer(this.localStream);
-                call.on('stream', (stream) => resolve(stream));
+                call.on('stream', (stream) => {
+                    resolve(stream);
+                });
             });
         });
     }
-    calledAnswer(stream) {
-        console.log("calledAnswer");
+    callAnswer(stream) {
+        console.log("Answer call for dest");
         this.callConnection.answer(stream);
+    }
+    callConnected() {
+        return new Promise((resolve, reject) => {
+            this.callConnection.on('stream', (stream) => resolve(stream));
+        });
     }
     connected(handleData) {
         this.peer.on('connection', (connection) => {

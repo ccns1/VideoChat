@@ -1,7 +1,6 @@
 "use strict";
-class MultiVideoChat {
+class MultiVideoChatClient {
     start() {
-        this.test();
         this.firstPeer = new HandlePeer();
         this.firstPeer.opened()
             .then((id) => {
@@ -13,7 +12,7 @@ class MultiVideoChat {
         this.firstPeer.error()
             .then((error) => console.error(error))
             .catch((reason) => console.log('Handle rejected promise (' + reason + ') here.'));
-        this.firstPeer.called(this.conposedStream)
+        this.firstPeer.called()
             .then((stream) => {
             this.showVideoFirst(stream);
         })
@@ -60,29 +59,11 @@ class MultiVideoChat {
     showVideoSelf(stream) {
         const video = document.getElementById('video-self');
         video.src = URL.createObjectURL(stream);
-        this.setCanvas(video, 0);
     }
     showVideoFirst(stream) {
-        console.log("showVideoFirst");
+        console.log("showVideoHost");
         const video = document.getElementById('video-first');
         video.src = URL.createObjectURL(stream);
-        this.setCanvas(video, 1);
-    }
-    setCanvas(video, number) {
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-        const cx = canvas.width - ((number + 1) * video.width);
-        const cy = (number % 4) * video.height;
-        canvas.style.transform = 'scaleX(-1)';
-        context.drawImage(video, cx, cy, video.width, (video.width * video.videoHeight) / video.videoWidth);
-        requestAnimationFrame(() => this.setCanvas(video, number));
-    }
-    test() {
-        console.log("setconposedstream");
-        const canvas = document.getElementById('canvas');
-        this.conposedStream = canvas.captureStream();
-        const conposed = document.getElementById('conposed');
-        conposed.src = URL.createObjectURL(this.conposedStream);
     }
     setVisible(id, visible) {
         const element = document.getElementById(id);
@@ -90,7 +71,7 @@ class MultiVideoChat {
     }
 }
 window.onload = () => {
-    const multi = new MultiVideoChat();
-    multi.start();
+    const client = new MultiVideoChatClient();
+    client.start();
 };
-//# sourceMappingURL=MultiVideoChat.js.map
+//# sourceMappingURL=MultiVideoChatClient.js.map
