@@ -54,7 +54,8 @@
   },
   "files": [
     "src/HandlePeer.ts",
-    "src/MultiVideoChat.ts"
+    "src/MultiVideoChat.ts",
+    "src/MultiVideoChatClient.ts"
   ]
   // "include": [
   //   "src/**/*"
