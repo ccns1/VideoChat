@@ -1,130 +1,112 @@
-// P2PVideoChat.js
 class MultiVideoChat {
     private firstPeer: HandlePeer;
     private context: any;
-    private conposedStream: any;
+    private conposedVideo: MediaStream;
+    private audio: HandleAudio;
+    private conposedStream = new MediaStream();
+
 
     public start() {
-        //todo 呼び出し場所
-        this.test();
+        //受け取ったストリームを画面をcanvasに出力する
+        this.setConposedScreen();
 
         this.firstPeer = new HandlePeer();
         this.firstPeer.opened()
             .then((id: any) => {
-                console.log(id);
-                const idElement = <HTMLElement>document.getElementById('peerid-first');
+                const idElement = <HTMLElement>document.getElementById("peerid-first");
                 idElement.innerHTML = id;
             })
-            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
+            .catch((reason: any) => console.error(reason));
         this.firstPeer.error()
             .then((error: any) => console.error(error))
-            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
-            // this.firstPeer.callConnected()
-            this.firstPeer.called(this.conposedStream)
+            .catch((reason: any) => console.error(reason));
+        this.firstPeer.called(this.conposedStream)
             .then((stream: any) => {
-                // this.firstPeer.calledAnswer(this.conposedStream);
                 this.showVideoFirst(stream);
+                const audioStream = this.audio.addStream(stream);
+                this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
+                this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
+
+                //fix 合成したストリームを表示する
+                const video = <HTMLVideoElement>document.getElementById("test");
+                video.src = URL.createObjectURL(this.conposedStream);
             })
-            // .then(() => this.firstPeer.calledAnswer(this.conposedStream(this.conposedStream)))
-            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
+            .catch((reason: any) => console.error(reason));
         this.firstPeer.getUserMedia()
             .then((stream: any) => {
                 this.showVideoSelf(stream);
+                this.audio = new HandleAudio(stream);
             })
-            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
+            .catch((reason: any) => console.error(reason));
 
         this.loginEvent();
-        this.callEvent();
         this.dissconnectEvent();
     }
 
     private loginEvent() {
-        // this.setVisible('connect', false);
+        // this.setVisible("connect", false);
 
-        const login = <HTMLInputElement>document.getElementById('loginbutton');
-        login.addEventListener('click', () => {
-            const nameElement: HTMLInputElement = <HTMLInputElement>document.getElementById('name');
+        const login = <HTMLInputElement>document.getElementById("loginbutton");
+        login.addEventListener("click", () => {
+            const nameElement: HTMLInputElement = <HTMLInputElement>document.getElementById("name");
             const name: string = nameElement.value;
-            console.log(name);
 
             if (name) {
                 this.firstPeer.setName(name);
-                const namebox: HTMLElement = <HTMLElement>document.getElementById('namebox');
+                const namebox: HTMLElement = <HTMLElement>document.getElementById("namebox");
                 namebox.innerHTML = name;
 
-                // this.setVisible('login', false);
-                // this.setVisible('connect', true);
+                // this.setVisible("login", false);
+                // this.setVisible("connect", true);
             }
         });
     }
 
-        // todo ホストのコールはない
-    private callEvent() {
-        const connectFirst: HTMLElement = <HTMLInputElement>document.getElementById('connectbutton-first');
-        connectFirst.addEventListener('click', () => {
-            const destIdElement: HTMLInputElement = <HTMLInputElement>document.getElementById('destid-first');
-            const destId: number = parseInt(destIdElement.value, 10);
-
-            this.firstPeer.setDestId(destId);
-            this.firstPeer.call()
-                .then((stream: any) => this.showVideoFirst(stream))
-                .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
-
-            //todo 接続を失敗した場合画面の遷移を行わない
-            // this.setVisible('connect', false);
-            //todo 接続を受けた場合画面の遷移を行う
-        });
-    }
-
     private dissconnectEvent() {
-        const dissconnectFirst: HTMLInputElement = <HTMLInputElement>document.getElementById('dissconnectbutton');
-        dissconnectFirst.addEventListener('click', () => {
+        const dissconnectFirst: HTMLInputElement = <HTMLInputElement>document.getElementById("dissconnectbutton");
+        dissconnectFirst.addEventListener("click", () => {
             this.firstPeer.reset();
 
-            // this.setVisible('login', true);
-            // this.setVisible('connect', false);
+            // this.setVisible("login", true);
+            // this.setVisible("connect", false);
         });
     }
 
     // todo allquery
-    private showVideoSelf(stream: any) {
-        const video = <HTMLVideoElement>document.getElementById('video-self');
+    private showVideoSelf(stream: MediaStream) {
+        const video = <HTMLVideoElement>document.getElementById("video-self");
         video.src = URL.createObjectURL(stream);
         this.setCanvas(video, 0);
     }
 
-    private showVideoFirst(stream: any) {
-        console.log("showVideoFirst");
-        const video = <HTMLVideoElement>document.getElementById('video-first');
+    private showVideoFirst(stream: MediaStream) {
+        const video = <HTMLVideoElement>document.getElementById("video-first");
         video.src = URL.createObjectURL(stream);
         this.setCanvas(video, 1);
     }
 
     private setCanvas(video: HTMLVideoElement, number: number) {
-        //todo captureStream認識しない
-        const canvas: any = document.getElementById('canvas');
-        const context = <CanvasRenderingContext2D>canvas.getContext('2d');
+        const canvas: any = document.getElementById("conpose-canvas");
+        const context = <CanvasRenderingContext2D>canvas.getContext("2d");
         const cx = canvas.width - ((number + 1) * video.width);
         const cy = (number % 4) * video.height;
 
-        canvas.style.transform = 'scaleX(-1)';
+        canvas.style.transform = "scaleX(-1)";
         context.drawImage(video, cx, cy, video.width, (video.width * video.videoHeight) / video.videoWidth);
-        //todo setCanvasを引数にした場合型が合わずエラー
         requestAnimationFrame(() => this.setCanvas(video, number));
     }
 
-    private test() {
-        console.log("setconposedstream");
-        const canvas: any = document.getElementById('canvas');
-        this.conposedStream = canvas.captureStream();
+    private setConposedScreen() {
+        const canvas: any = <HTMLCanvasElement>document.getElementById("conpose-canvas");
+        this.conposedVideo = canvas.captureStream();
 
-        const conposed = <HTMLVideoElement>document.getElementById('conposed');
-        conposed.src = URL.createObjectURL(this.conposedStream);
+        const conposed = <HTMLVideoElement>document.getElementById("conposed-stream");
+        conposed.src = URL.createObjectURL(this.conposedVideo);
     }
 
     private setVisible(id: string, visible: boolean) {
         const element: HTMLElement = <HTMLElement>document.getElementById(id);
-        visible ? element.style.display = 'block' : element.style.display = 'none';
+        visible ? element.style.display = "block" : element.style.display = "none";
     }
 }
 

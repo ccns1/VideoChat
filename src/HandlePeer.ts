@@ -1,4 +1,3 @@
-//HandlePeer.ts
 class HandlePeer {
     private name: string;
     private peer: any;
@@ -17,7 +16,6 @@ class HandlePeer {
         this.peer = new Peer(this.peerId, options);
     }
 
-    // todocallback関数を受け取りpromiseで処理する
     public opened() {
         console.log('open');
         return new Promise((resolve, reject) => {
@@ -32,19 +30,18 @@ class HandlePeer {
     }
 
     //相手からのcallを受けた時にビデオの表示を行う
-    public called(stream?: any) {
+    public called(stream?: MediaStream) {
         return new Promise((resolve, reject) => {
             this.peer.on('call', (call: any) => {
                 console.log('called from: ' + call.peer);
                 this.callConnection = call;
                 this.destId = call.peer;
                 if(stream) {
-                    console.log("answer conposed stream");
                     call.answer(stream);
                 }
                 call.answer(this.localStream);
                 // call.on('stream', (stream: any) => resolve(stream));
-                call.on('stream', (stream: any) => {
+                call.on('stream', (stream: MediaStream) => {
                     resolve(stream);
                 });
             });

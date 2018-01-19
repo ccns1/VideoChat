@@ -2,7 +2,6 @@
 class MultiVideoChatClient {
     private firstPeer: HandlePeer;
     private context: any;
-    private conposedStream: any;
 
     public start() {
         this.firstPeer = new HandlePeer();
@@ -12,23 +11,20 @@ class MultiVideoChatClient {
                 const idElement = <HTMLElement>document.getElementById('peerid-first');
                 idElement.innerHTML = id;
             })
-            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
+            .catch((reason: any) => console.error(reason));
         this.firstPeer.error()
             .then((error: any) => console.error(error))
-            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
-            // this.firstPeer.callConnected()
+            .catch((reason: any) => console.error(reason));
             this.firstPeer.called()
             .then((stream: any) => {
-                // this.firstPeer.calledAnswer(this.conposedStream);
                 this.showVideoFirst(stream);
             })
-            // .then(() => this.firstPeer.calledAnswer(this.conposedStream(this.conposedStream)))
-            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
+            .catch((reason: any) => console.error(reason));
         this.firstPeer.getUserMedia()
             .then((stream: any) => {
                 this.showVideoSelf(stream);
             })
-            .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
+            .catch((reason: any) => console.error(reason));
 
         this.loginEvent();
         this.callEvent();
@@ -64,7 +60,7 @@ class MultiVideoChatClient {
             this.firstPeer.setDestId(destId);
             this.firstPeer.call()
                 .then((stream: any) => this.showVideoFirst(stream))
-                .catch((reason: any) => console.log('Handle rejected promise (' + reason + ') here.'));
+                .catch((reason: any) => console.error(reason));
 
             //todo 接続を失敗した場合画面の遷移を行わない
             // this.setVisible('connect', false);

@@ -26,7 +26,6 @@ class HandlePeer {
                 this.callConnection = call;
                 this.destId = call.peer;
                 if (stream) {
-                    console.log("answer conposed stream");
                     call.answer(stream);
                 }
                 call.answer(this.localStream);
