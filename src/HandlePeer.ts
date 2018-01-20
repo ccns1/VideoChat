@@ -4,7 +4,7 @@ class HandlePeer {
     private peerId: string;
     private destId: number;
     private dataConnection: any;
-    private localStream: any;
+    private localStream: MediaStream;
     private callConnection: any;
 
     constructor() {
@@ -30,33 +30,29 @@ class HandlePeer {
     }
 
     //相手からのcallを受けた時にビデオの表示を行う
-    public called(stream?: MediaStream) {
+    public called(stream: MediaStream) {
         return new Promise((resolve, reject) => {
             this.peer.on('call', (call: any) => {
                 console.log('called from: ' + call.peer);
                 this.callConnection = call;
                 this.destId = call.peer;
-                if(stream) {
-                    call.answer(stream);
-                }
-                call.answer(this.localStream);
-                // call.on('stream', (stream: any) => resolve(stream));
+                call.answer(stream);
                 call.on('stream', (stream: MediaStream) => {
-                    resolve(stream);
+                    resolve(stream)
                 });
             });
         });
     }
 
     // todo 返却
-    public callAnswer(stream: any) {
+    public callAnswer(stream: MediaStream) {
         console.log("Answer call for dest");
         this.callConnection.answer(stream);
     }
 
     public callConnected() {
         return new Promise((resolve, reject) => {
-            this.callConnection.on('stream', (stream: any) => resolve(stream));
+            this.callConnection.on('stream', (stream: MediaStream) => resolve(stream));
         });
     }
 
@@ -100,7 +96,7 @@ class HandlePeer {
         console.log('this.destId: ' + this.destId);
         return new Promise((resolve, jeject) => {
             const call = this.peer.call(this.destId, this.localStream);
-            call.on('stream', (stream: any) => resolve(stream));
+            call.on('stream', (stream: MediaStream) => resolve(stream));
         });
     }
 
@@ -121,7 +117,7 @@ class HandlePeer {
         //todo localStreamのリセット確認
         this.localStream.getVideoTracks()[0].stop();
         this.localStream.getAudioTracks()[0].stop();
-        this.localStream = null;
+        // this.localStream = null;
         this.peer.disconnect(); //サーバとのの接続をクローズし、既存の接続はそのまま
         this.peer.destroy(); //サーバとのの接続をクローズし、すべての既存の接続を終了する
     }

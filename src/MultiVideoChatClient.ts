@@ -1,25 +1,24 @@
-// P2PVideoChat.js
 class MultiVideoChatClient {
     private firstPeer: HandlePeer;
     private context: any;
+    private hostStream = new MediaStream();
 
     public start() {
         this.firstPeer = new HandlePeer();
         this.firstPeer.opened()
             .then((id: any) => {
-                console.log(id);
-                const idElement = <HTMLElement>document.getElementById('peerid-first');
+                const idElement = <HTMLElement>document.getElementById("peerid");
                 idElement.innerHTML = id;
             })
             .catch((reason: any) => console.error(reason));
         this.firstPeer.error()
             .then((error: any) => console.error(error))
             .catch((reason: any) => console.error(reason));
-            this.firstPeer.called()
-            .then((stream: any) => {
-                this.showVideoFirst(stream);
-            })
-            .catch((reason: any) => console.error(reason));
+        // this.firstPeer.called()
+        // .then((stream: any) => {
+        //     this.showVideoFirst(stream);
+        // })
+        // .catch((reason: any) => console.error(reason));
         this.firstPeer.getUserMedia()
             .then((stream: any) => {
                 this.showVideoSelf(stream);
@@ -32,67 +31,68 @@ class MultiVideoChatClient {
     }
 
     private loginEvent() {
-        // this.setVisible('connect', false);
+        // this.setVisible("connect", false);
 
-        const login = <HTMLInputElement>document.getElementById('loginbutton');
-        login.addEventListener('click', () => {
-            const nameElement: HTMLInputElement = <HTMLInputElement>document.getElementById('name');
+        const login = <HTMLInputElement>document.getElementById("loginbutton");
+        login.addEventListener("click", () => {
+            const nameElement: HTMLInputElement = <HTMLInputElement>document.getElementById("name");
             const name: string = nameElement.value;
-            console.log(name);
 
             if (name) {
                 this.firstPeer.setName(name);
-                const namebox: HTMLElement = <HTMLElement>document.getElementById('namebox');
+                const namebox: HTMLElement = <HTMLElement>document.getElementById("namebox");
                 namebox.innerHTML = name;
 
-                // this.setVisible('login', false);
-                // this.setVisible('connect', true);
+                // this.setVisible("login", false);
+                // this.setVisible("connect", true);
             }
         });
     }
 
     private callEvent() {
-        const connectFirst: HTMLElement = <HTMLInputElement>document.getElementById('connectbutton-first');
-        connectFirst.addEventListener('click', () => {
-            const destIdElement: HTMLInputElement = <HTMLInputElement>document.getElementById('destid-first');
+        const connectFirst: HTMLElement = <HTMLInputElement>document.getElementById("connectbutton");
+        connectFirst.addEventListener("click", () => {
+            const destIdElement: HTMLInputElement = <HTMLInputElement>document.getElementById("destid");
             const destId: number = parseInt(destIdElement.value, 10);
 
             this.firstPeer.setDestId(destId);
             this.firstPeer.call()
-                .then((stream: any) => this.showVideoFirst(stream))
+                .then((stream: any) => {
+                    this.hostStream = stream;
+                    return this.hostStream;
+                })
+                .then((stream) => this.showVideoHost(this.hostStream))
                 .catch((reason: any) => console.error(reason));
 
             //todo 接続を失敗した場合画面の遷移を行わない
-            // this.setVisible('connect', false);
+            // this.setVisible("connect", false);
             //todo 接続を受けた場合画面の遷移を行う
         });
     }
 
     private dissconnectEvent() {
-        const dissconnectFirst: HTMLInputElement = <HTMLInputElement>document.getElementById('dissconnectbutton');
-        dissconnectFirst.addEventListener('click', () => {
+        const dissconnectFirst: HTMLInputElement = <HTMLInputElement>document.getElementById("dissconnectbutton");
+        dissconnectFirst.addEventListener("click", () => {
             this.firstPeer.reset();
 
-            // this.setVisible('login', true);
-            // this.setVisible('connect', false);
+            // this.setVisible("login", true);
+            // this.setVisible("connect", false);
         });
     }
 
-    // todo allquery
-    private showVideoSelf(stream: any) {
-        const video = <HTMLVideoElement>document.getElementById('video-self');
+    private showVideoSelf(stream: MediaStream) {
+        const video = <HTMLVideoElement>document.getElementById("video-self");
         video.src = URL.createObjectURL(stream);
     }
 
-    private showVideoFirst(stream: any) {
-        console.log("showVideoHost");
-        const video = <HTMLVideoElement>document.getElementById('video-first');
+    private showVideoHost(stream: MediaStream) {
+        const video = <HTMLVideoElement>document.getElementById("video-host");
         video.src = URL.createObjectURL(stream);
     }
 
     private setVisible(id: string, visible: boolean) {
         const element: HTMLElement = <HTMLElement>document.getElementById(id);
-        visible ? element.style.display = 'block' : element.style.display = 'none';
+        visible ? element.style.display = "block" : element.style.display = "none";
     }
 }
 

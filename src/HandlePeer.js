@@ -29,9 +29,7 @@ class HandlePeer {
                     call.answer(stream);
                 }
                 call.answer(this.localStream);
-                call.on('stream', (stream) => {
-                    resolve(stream);
-                });
+                call.on('stream', (stream) => resolve(stream));
             });
         });
     }
@@ -91,7 +89,6 @@ class HandlePeer {
     reset() {
         this.localStream.getVideoTracks()[0].stop();
         this.localStream.getAudioTracks()[0].stop();
-        this.localStream = null;
         this.peer.disconnect();
         this.peer.destroy();
     }

@@ -22,6 +22,7 @@ class MultiVideoChat {
             .catch((reason: any) => console.error(reason));
         this.firstPeer.called(this.conposedStream)
             .then((stream: any) => {
+                //canvasのstreamと音声の合成後にsとリームを変えす
                 this.showVideoFirst(stream);
                 const audioStream = this.audio.addStream(stream);
                 this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
