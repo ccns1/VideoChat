@@ -43,6 +43,7 @@ class MultiVideoChatClient {
             this.firstPeer.setDestId(destId);
             this.firstPeer.call()
                 .then((stream) => {
+                console.log("stream catched");
                 this.hostStream = stream;
                 return this.hostStream;
             })

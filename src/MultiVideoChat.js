@@ -21,6 +21,7 @@ class MultiVideoChat {
             const audioStream = this.audio.addStream(stream);
             this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
             this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
+            this.firstPeer.callAnswer(this.conposedStream);
             const video = document.getElementById("test");
             video.src = URL.createObjectURL(this.conposedStream);
         })

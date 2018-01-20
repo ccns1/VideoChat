@@ -1,19 +1,18 @@
 class HandlePeer {
     private name: string;
     private peer: any;
-    private peerId: string;
     private destId: number;
+    private callConnection: any;
     private dataConnection: any;
     private localStream: MediaStream;
-    private callConnection: any;
 
     constructor() {
-        this.peerId = String(Math.floor(Math.random() * 900) + 100);
+        const peerId = String(Math.floor(Math.random() * 900) + 100);
         const options = {
             host: location.hostname,
             port: 9000
         };
-        this.peer = new Peer(this.peerId, options);
+        this.peer = new Peer(peerId, options);
     }
 
     public opened() {
@@ -33,27 +32,19 @@ class HandlePeer {
     public called(stream: MediaStream) {
         return new Promise((resolve, reject) => {
             this.peer.on('call', (call: any) => {
-                console.log('called from: ' + call.peer);
                 this.callConnection = call;
+                console.log('called from: ' + call.peer);
                 this.destId = call.peer;
-                call.answer(stream);
                 call.on('stream', (stream: MediaStream) => {
                     resolve(stream)
                 });
+                // call.answer(stream);
             });
         });
     }
 
-    // todo 返却
     public callAnswer(stream: MediaStream) {
-        console.log("Answer call for dest");
         this.callConnection.answer(stream);
-    }
-
-    public callConnected() {
-        return new Promise((resolve, reject) => {
-            this.callConnection.on('stream', (stream: MediaStream) => resolve(stream));
-        });
     }
 
     //todo promise
@@ -91,12 +82,11 @@ class HandlePeer {
             .catch(error => console.error(error));
     }
 
-    //相手にコールする
     public call() {
         console.log('this.destId: ' + this.destId);
         return new Promise((resolve, jeject) => {
-            const call = this.peer.call(this.destId, this.localStream);
-            call.on('stream', (stream: MediaStream) => resolve(stream));
+            this.callConnection = this.peer.call(this.destId, this.localStream);
+            this.callConnection.on('stream', (stream: MediaStream) => resolve(stream));
         });
     }
 

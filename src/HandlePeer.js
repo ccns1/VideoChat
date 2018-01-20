@@ -1,12 +1,12 @@
 "use strict";
 class HandlePeer {
     constructor() {
-        this.peerId = String(Math.floor(Math.random() * 900) + 100);
+        const peerId = String(Math.floor(Math.random() * 900) + 100);
         const options = {
             host: location.hostname,
             port: 9000
         };
-        this.peer = new Peer(this.peerId, options);
+        this.peer = new Peer(peerId, options);
     }
     opened() {
         console.log('open');
@@ -22,25 +22,17 @@ class HandlePeer {
     called(stream) {
         return new Promise((resolve, reject) => {
             this.peer.on('call', (call) => {
-                console.log('called from: ' + call.peer);
                 this.callConnection = call;
+                console.log('called from: ' + call.peer);
                 this.destId = call.peer;
-                if (stream) {
-                    call.answer(stream);
-                }
-                call.answer(this.localStream);
-                call.on('stream', (stream) => resolve(stream));
+                call.on('stream', (stream) => {
+                    resolve(stream);
+                });
             });
         });
     }
     callAnswer(stream) {
-        console.log("Answer call for dest");
         this.callConnection.answer(stream);
-    }
-    callConnected() {
-        return new Promise((resolve, reject) => {
-            this.callConnection.on('stream', (stream) => resolve(stream));
-        });
     }
     connected(handleData) {
         this.peer.on('connection', (connection) => {
