@@ -1,73 +1,68 @@
 "use strict";
 class MultiVideoChatClient {
+    constructor() {
+        this.hostStream = new MediaStream();
+    }
     start() {
         this.firstPeer = new HandlePeer();
-        this.firstPeer.opened()
-            .then((id) => {
-            console.log(id);
-            const idElement = document.getElementById('peerid-first');
-            idElement.innerHTML = id;
-        })
-            .catch((reason) => console.log('Handle rejected promise (' + reason + ') here.'));
-        this.firstPeer.error()
-            .then((error) => console.error(error))
-            .catch((reason) => console.log('Handle rejected promise (' + reason + ') here.'));
-        this.firstPeer.called()
-            .then((stream) => {
-            this.showVideoFirst(stream);
-        })
-            .catch((reason) => console.log('Handle rejected promise (' + reason + ') here.'));
         this.firstPeer.getUserMedia()
             .then((stream) => {
-            this.showVideoSelf(stream);
+            console.log("getUserMedia");
         })
-            .catch((reason) => console.log('Handle rejected promise (' + reason + ') here.'));
+            .catch((reason) => console.error(reason));
+        this.firstPeer.opened()
+            .then((id) => {
+            const idElement = document.getElementById("peerid");
+            idElement.innerHTML = id;
+        })
+            .catch((reason) => console.error(reason));
+        this.firstPeer.error()
+            .then((error) => console.error(error))
+            .catch((reason) => console.error(reason));
         this.loginEvent();
         this.callEvent();
         this.dissconnectEvent();
     }
     loginEvent() {
-        const login = document.getElementById('loginbutton');
-        login.addEventListener('click', () => {
-            const nameElement = document.getElementById('name');
+        const login = document.getElementById("loginbutton");
+        login.addEventListener("click", () => {
+            const nameElement = document.getElementById("name");
             const name = nameElement.value;
-            console.log(name);
             if (name) {
                 this.firstPeer.setName(name);
-                const namebox = document.getElementById('namebox');
+                const namebox = document.getElementById("namebox");
                 namebox.innerHTML = name;
             }
         });
     }
     callEvent() {
-        const connectFirst = document.getElementById('connectbutton-first');
-        connectFirst.addEventListener('click', () => {
-            const destIdElement = document.getElementById('destid-first');
+        const connectFirst = document.getElementById("connectbutton");
+        connectFirst.addEventListener("click", () => {
+            const destIdElement = document.getElementById("destid");
             const destId = parseInt(destIdElement.value, 10);
-            this.firstPeer.setDestId(destId);
-            this.firstPeer.call()
-                .then((stream) => this.showVideoFirst(stream))
-                .catch((reason) => console.log('Handle rejected promise (' + reason + ') here.'));
+            this.firstPeer.call(destId)
+                .then((stream) => {
+                console.log("stream catched");
+                this.hostStream = stream;
+                return this.hostStream;
+            })
+                .then((stream) => this.showVideoHost(this.hostStream))
+                .catch((reason) => console.error(reason));
         });
     }
     dissconnectEvent() {
-        const dissconnectFirst = document.getElementById('dissconnectbutton');
-        dissconnectFirst.addEventListener('click', () => {
+        const dissconnectFirst = document.getElementById("dissconnectbutton");
+        dissconnectFirst.addEventListener("click", () => {
             this.firstPeer.reset();
         });
     }
-    showVideoSelf(stream) {
-        const video = document.getElementById('video-self');
-        video.src = URL.createObjectURL(stream);
-    }
-    showVideoFirst(stream) {
-        console.log("showVideoHost");
-        const video = document.getElementById('video-first');
+    showVideoHost(stream) {
+        const video = document.getElementById("video-host");
         video.src = URL.createObjectURL(stream);
     }
     setVisible(id, visible) {
         const element = document.getElementById(id);
-        visible ? element.style.display = 'block' : element.style.display = 'none';
+        visible ? element.style.display = "block" : element.style.display = "none";
     }
 }
 window.onload = () => {

@@ -5,24 +5,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="http://cdn.peerjs.com/0.3/peer.js"></script>
+    <script src="./peer.js"></script>
     <script src="./MultiVideoChat.js"></script>
     <script src="./HandlePeer.js"></script>
+    <script src="./HandleAudio.js"></script>
     <title>P2PVideo</title>
 </head>
 
 <body>
     <h1>P2P Video Chat</h1>
-    self
+    self vide
     <video id="video-self" width="200" autoplay></video>
-    first
+    dest video
     <video id="video-first" width="200" autoplay></video>
+    conposed video
+    <video id="test" width="200" autoplay></video>
     <div>
-        <h3>合成</h3>
-        <canvas id="canvas" width="800"></canvas>
+        合成 canvas
+        <canvas id="conpose-canvas" width="800"></canvas>
     </div>
-    stream変換
-    <video id="conposed" width="800" autoplay></video>
+    stream変換 video
+    <video id="conposed-stream" width="800" autoplay></video>
     <div id="login">
         <div>
             <label for="name">名前: </label>
@@ -36,15 +39,6 @@
         <div>
             <span id="namebox"></span>さんのPeerIDは
             <span id="peerid-first"></span>です
-        </div>
-        <div id="connect-fist">
-            <div>
-                <label for="destid">接続先PeerID: </label>
-                <input type="text" id="destid-first" name="destid">
-            </div>
-            <div>
-                <input type="button" id="connectbutton-first" value="connect">
-            </div>
         </div>
     </div>
     <div id="disconnect">
