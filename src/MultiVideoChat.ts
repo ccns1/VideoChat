@@ -1,5 +1,6 @@
 class MultiVideoChat {
-    private peer: HandlePeer[];
+    private peer: Array<HandlePeer> = [];
+    private index: number = 0;
     private context: any;
     private conposedVideo: MediaStream;
     private audio: HandleAudio;
@@ -9,9 +10,9 @@ class MultiVideoChat {
         //受け取ったストリームを画面をcanvasに出力する
         this.setConposedScreen();
 
-        this.peer[0] = new HandlePeer();
+        this.peer[this.index] = new HandlePeer();
 
-        this.peer[0].getUserMedia()
+        this.peer[this.index].getUserMedia()
             .then((stream: any) => {
                 console.log("getUserMedia");
                 this.showVideoSelf(stream);
@@ -19,18 +20,20 @@ class MultiVideoChat {
             })
             .catch((reason: any) => console.error(reason));
 
-        this.peer[0].opened()
+        this.peer[this.index].opened()
             .then((id: any) => {
-                const idElement = <HTMLElement>document.getElementById("peerid-first");
-                idElement.innerHTML = id;
+                const container = <HTMLElement>document.getElementById("peerid");
+                const idElement = document.createElement("span");
+                idElement.textContent = id;
+                container.insertAdjacentElement("beforeend", idElement);
             })
             .catch((reason: any) => console.error(reason));
 
-        this.peer[0].error()
+        this.peer[this.index].error()
             .then((error: any) => console.error(error))
             .catch((reason: any) => console.error(reason));
 
-        this.peer[0].called(this.conposedStream)
+        this.peer[this.index].called(this.conposedStream)
             .then((stream: MediaStream) => {
                 this.showVideoFirst(stream);
                 const audioStream = this.audio.addStream(stream);
@@ -42,40 +45,17 @@ class MultiVideoChat {
                 video.src = URL.createObjectURL(this.conposedStream);
 
                 //todo 2度返す
-                this.peer[0].answerStream(this.conposedStream);
+                this.peer[this.index].answerStream(this.conposedStream);
             })
             .catch((reason: any) => console.error(reason));
 
-        this.loginEvent();
         this.dissconnectEvent();
-    }
-
-    private loginEvent() {
-        // this.setVisible("connect", false);
-
-        const login = <HTMLInputElement>document.getElementById("loginbutton");
-        login.addEventListener("click", () => {
-            const nameElement: HTMLInputElement = <HTMLInputElement>document.getElementById("name");
-            const name: string = nameElement.value;
-
-            if (name) {
-                this.peer[0].setName(name);
-                const namebox: HTMLElement = <HTMLElement>document.getElementById("namebox");
-                namebox.innerHTML = name;
-
-                // this.setVisible("login", false);
-                // this.setVisible("connect", true);
-            }
-        });
     }
 
     private dissconnectEvent() {
         const dissconnectFirst: HTMLInputElement = <HTMLInputElement>document.getElementById("dissconnectbutton");
         dissconnectFirst.addEventListener("click", () => {
-            this.peer[0].reset();
-
-            // this.setVisible("login", true);
-            // this.setVisible("connect", false);
+            this.peer[this.index].reset();
         });
     }
 
@@ -110,11 +90,6 @@ class MultiVideoChat {
 
         const conposed = <HTMLVideoElement>document.getElementById("conposed-stream");
         conposed.src = URL.createObjectURL(this.conposedVideo);
-    }
-
-    private setVisible(id: string, visible: boolean) {
-        const element: HTMLElement = <HTMLElement>document.getElementById(id);
-        visible ? element.style.display = "block" : element.style.display = "none";
     }
 }
 
