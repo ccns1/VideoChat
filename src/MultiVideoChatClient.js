@@ -5,6 +5,11 @@ class MultiVideoChatClient {
     }
     start() {
         this.firstPeer = new HandlePeer();
+        this.firstPeer.getUserMedia()
+            .then((stream) => {
+            console.log("getUserMedia");
+        })
+            .catch((reason) => console.error(reason));
         this.firstPeer.opened()
             .then((id) => {
             const idElement = document.getElementById("peerid");
@@ -13,11 +18,6 @@ class MultiVideoChatClient {
             .catch((reason) => console.error(reason));
         this.firstPeer.error()
             .then((error) => console.error(error))
-            .catch((reason) => console.error(reason));
-        this.firstPeer.getUserMedia()
-            .then((stream) => {
-            this.showVideoSelf(stream);
-        })
             .catch((reason) => console.error(reason));
         this.loginEvent();
         this.callEvent();
@@ -40,8 +40,7 @@ class MultiVideoChatClient {
         connectFirst.addEventListener("click", () => {
             const destIdElement = document.getElementById("destid");
             const destId = parseInt(destIdElement.value, 10);
-            this.firstPeer.setDestId(destId);
-            this.firstPeer.call()
+            this.firstPeer.call(destId)
                 .then((stream) => {
                 console.log("stream catched");
                 this.hostStream = stream;
@@ -56,10 +55,6 @@ class MultiVideoChatClient {
         dissconnectFirst.addEventListener("click", () => {
             this.firstPeer.reset();
         });
-    }
-    showVideoSelf(stream) {
-        const video = document.getElementById("video-self");
-        video.src = URL.createObjectURL(stream);
     }
     showVideoHost(stream) {
         const video = document.getElementById("video-host");

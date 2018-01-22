@@ -6,6 +6,13 @@ class MultiVideoChat {
     start() {
         this.setConposedScreen();
         this.firstPeer = new HandlePeer();
+        this.firstPeer.getUserMedia()
+            .then((stream) => {
+            console.log("getUserMedia");
+            this.showVideoSelf(stream);
+            this.audio = new HandleAudio(stream);
+        })
+            .catch((reason) => console.error(reason));
         this.firstPeer.opened()
             .then((id) => {
             const idElement = document.getElementById("peerid-first");
@@ -21,15 +28,9 @@ class MultiVideoChat {
             const audioStream = this.audio.addStream(stream);
             this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
             this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
-            this.firstPeer.callAnswer(this.conposedStream);
             const video = document.getElementById("test");
             video.src = URL.createObjectURL(this.conposedStream);
-        })
-            .catch((reason) => console.error(reason));
-        this.firstPeer.getUserMedia()
-            .then((stream) => {
-            this.showVideoSelf(stream);
-            this.audio = new HandleAudio(stream);
+            this.firstPeer.answerStream(this.conposedStream);
         })
             .catch((reason) => console.error(reason));
         this.loginEvent();
@@ -75,6 +76,7 @@ class MultiVideoChat {
     setConposedScreen() {
         const canvas = document.getElementById("conpose-canvas");
         this.conposedVideo = canvas.captureStream();
+        this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
         const conposed = document.getElementById("conposed-stream");
         conposed.src = URL.createObjectURL(this.conposedVideo);
     }

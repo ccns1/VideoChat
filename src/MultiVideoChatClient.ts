@@ -5,24 +5,23 @@ class MultiVideoChatClient {
 
     public start() {
         this.firstPeer = new HandlePeer();
+
+        this.firstPeer.getUserMedia()
+            .then((stream: any) => {
+                console.log("getUserMedia");
+                // this.showVideoSelf(stream);
+            })
+            .catch((reason: any) => console.error(reason));
+
         this.firstPeer.opened()
             .then((id: any) => {
                 const idElement = <HTMLElement>document.getElementById("peerid");
                 idElement.innerHTML = id;
             })
             .catch((reason: any) => console.error(reason));
+
         this.firstPeer.error()
             .then((error: any) => console.error(error))
-            .catch((reason: any) => console.error(reason));
-        // this.firstPeer.called()
-        // .then((stream: any) => {
-        //     this.showVideoFirst(stream);
-        // })
-        // .catch((reason: any) => console.error(reason));
-        this.firstPeer.getUserMedia()
-            .then((stream: any) => {
-                this.showVideoSelf(stream);
-            })
             .catch((reason: any) => console.error(reason));
 
         this.loginEvent();
@@ -55,13 +54,13 @@ class MultiVideoChatClient {
             const destIdElement: HTMLInputElement = <HTMLInputElement>document.getElementById("destid");
             const destId: number = parseInt(destIdElement.value, 10);
 
-            this.firstPeer.setDestId(destId);
-            this.firstPeer.call()
-                .then((stream: any) => {
+            this.firstPeer.call(destId)
+                .then((stream: MediaStream) => {
                     console.log("stream catched");
                     this.hostStream = stream;
                     return this.hostStream;
                 })
+                //fix 分離する必要があるか
                 .then((stream) => this.showVideoHost(this.hostStream))
                 .catch((reason: any) => console.error(reason));
 
@@ -81,10 +80,10 @@ class MultiVideoChatClient {
         });
     }
 
-    private showVideoSelf(stream: MediaStream) {
-        const video = <HTMLVideoElement>document.getElementById("video-self");
-        video.src = URL.createObjectURL(stream);
-    }
+    // private showVideoSelf(stream: MediaStream) {
+    //     const video = <HTMLVideoElement>document.getElementById("video-self");
+    //     video.src = URL.createObjectURL(stream);
+    // }
 
     private showVideoHost(stream: MediaStream) {
         const video = <HTMLVideoElement>document.getElementById("video-host");

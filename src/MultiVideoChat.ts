@@ -11,32 +11,39 @@ class MultiVideoChat {
         this.setConposedScreen();
 
         this.firstPeer = new HandlePeer();
+
+        this.firstPeer.getUserMedia()
+            .then((stream: any) => {
+                console.log("getUserMedia");
+                this.showVideoSelf(stream);
+                this.audio = new HandleAudio(stream);
+            })
+            .catch((reason: any) => console.error(reason));
+
         this.firstPeer.opened()
             .then((id: any) => {
                 const idElement = <HTMLElement>document.getElementById("peerid-first");
                 idElement.innerHTML = id;
             })
             .catch((reason: any) => console.error(reason));
+
         this.firstPeer.error()
             .then((error: any) => console.error(error))
             .catch((reason: any) => console.error(reason));
+
         this.firstPeer.called(this.conposedStream)
-            .then((stream: any) => {
+            .then((stream: MediaStream) => {
                 this.showVideoFirst(stream);
                 const audioStream = this.audio.addStream(stream);
                 this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
                 this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
-                this.firstPeer.callAnswer(this.conposedStream);
-                
+
                 //fix 合成したストリームを表示する
                 const video = <HTMLVideoElement>document.getElementById("test");
                 video.src = URL.createObjectURL(this.conposedStream);
-            })
-            .catch((reason: any) => console.error(reason));
-        this.firstPeer.getUserMedia()
-            .then((stream: any) => {
-                this.showVideoSelf(stream);
-                this.audio = new HandleAudio(stream);
+
+                //todo 2度返す
+                this.firstPeer.answerStream(this.conposedStream);
             })
             .catch((reason: any) => console.error(reason));
 
@@ -100,6 +107,7 @@ class MultiVideoChat {
     private setConposedScreen() {
         const canvas: any = <HTMLCanvasElement>document.getElementById("conpose-canvas");
         this.conposedVideo = canvas.captureStream();
+        this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
 
         const conposed = <HTMLVideoElement>document.getElementById("conposed-stream");
         conposed.src = URL.createObjectURL(this.conposedVideo);
