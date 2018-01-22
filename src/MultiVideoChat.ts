@@ -1,18 +1,17 @@
 class MultiVideoChat {
-    private firstPeer: HandlePeer;
+    private peer: HandlePeer[];
     private context: any;
     private conposedVideo: MediaStream;
     private audio: HandleAudio;
     private conposedStream = new MediaStream();
 
-
     public start() {
         //受け取ったストリームを画面をcanvasに出力する
         this.setConposedScreen();
 
-        this.firstPeer = new HandlePeer();
+        this.peer[0] = new HandlePeer();
 
-        this.firstPeer.getUserMedia()
+        this.peer[0].getUserMedia()
             .then((stream: any) => {
                 console.log("getUserMedia");
                 this.showVideoSelf(stream);
@@ -20,18 +19,18 @@ class MultiVideoChat {
             })
             .catch((reason: any) => console.error(reason));
 
-        this.firstPeer.opened()
+        this.peer[0].opened()
             .then((id: any) => {
                 const idElement = <HTMLElement>document.getElementById("peerid-first");
                 idElement.innerHTML = id;
             })
             .catch((reason: any) => console.error(reason));
 
-        this.firstPeer.error()
+        this.peer[0].error()
             .then((error: any) => console.error(error))
             .catch((reason: any) => console.error(reason));
 
-        this.firstPeer.called(this.conposedStream)
+        this.peer[0].called(this.conposedStream)
             .then((stream: MediaStream) => {
                 this.showVideoFirst(stream);
                 const audioStream = this.audio.addStream(stream);
@@ -43,7 +42,7 @@ class MultiVideoChat {
                 video.src = URL.createObjectURL(this.conposedStream);
 
                 //todo 2度返す
-                this.firstPeer.answerStream(this.conposedStream);
+                this.peer[0].answerStream(this.conposedStream);
             })
             .catch((reason: any) => console.error(reason));
 
@@ -60,7 +59,7 @@ class MultiVideoChat {
             const name: string = nameElement.value;
 
             if (name) {
-                this.firstPeer.setName(name);
+                this.peer[0].setName(name);
                 const namebox: HTMLElement = <HTMLElement>document.getElementById("namebox");
                 namebox.innerHTML = name;
 
@@ -73,7 +72,7 @@ class MultiVideoChat {
     private dissconnectEvent() {
         const dissconnectFirst: HTMLInputElement = <HTMLInputElement>document.getElementById("dissconnectbutton");
         dissconnectFirst.addEventListener("click", () => {
-            this.firstPeer.reset();
+            this.peer[0].reset();
 
             // this.setVisible("login", true);
             // this.setVisible("connect", false);
