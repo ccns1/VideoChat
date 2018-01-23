@@ -68,7 +68,6 @@ class HandlePeer {
         });
     }
 
-    //todo promise
     //相手からデータを受けた時にメッセージを表示する
     public connected(handleData: any) {
         this.peer.on('connection', (connection: any) => {
@@ -90,12 +89,9 @@ class HandlePeer {
         });
     }
 
-    //todo リセット後の再接続エラー
     public reset() {
-        //todo localStreamのリセット確認
         this.localStream.getVideoTracks()[0].stop();
         this.localStream.getAudioTracks()[0].stop();
-        // this.localStream = null;
         this.peer.disconnect(); //サーバとのの接続をクローズし、既存の接続はそのまま
         this.peer.destroy(); //サーバとのの接続をクローズし、すべての既存の接続を終了する
     }
