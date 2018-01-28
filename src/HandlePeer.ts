@@ -53,6 +53,7 @@ class HandlePeer {
         });
     }
 
+    //fix callConnection の分割を削除する
     public answerStream(stream: MediaStream): void {
         this.callConnection.answer(stream);
     }

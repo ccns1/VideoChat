@@ -1,1 +1,7 @@
 node_modules/
+
+#Exclude tsc generated files
+src/*.map
+
+#Macの隠しファイルを除外
+**/.DS_Store

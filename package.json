@@ -5,11 +5,13 @@
   "dependencies": {
     "@types/node": "^8.0.53",
     "@types/peerjs": "0.0.29",
+    "@types/webaudioapi": "0.0.27",
     "@types/webrtc": "0.0.22",
     "es6-promise": "^4.1.1",
     "node-static": "^0.7.10",
     "peer": "^0.2.8",
-    "peerjs": "^0.3.14"
+    "peerjs": "^0.3.14",
+    "typescript": "^2.6.2"
   },
   "devDependencies": {
     "core-js": "^2.5.3"

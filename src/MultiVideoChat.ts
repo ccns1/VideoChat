@@ -7,14 +7,13 @@ class MultiVideoChat {
     private conposedStream = new MediaStream();
 
     public start() {
-        //受け取ったストリームを画面をcanvasに出力する
+        //受け取ったストリームをcanvasに出力する
         this.setConposedScreen();
 
         this.peer[this.index] = new HandlePeer();
 
         this.peer[this.index].getUserMedia()
             .then((stream: any) => {
-                console.log("getUserMedia");
                 this.showVideoSelf(stream);
                 this.audio = new HandleAudio(stream);
             })
@@ -23,7 +22,7 @@ class MultiVideoChat {
         this.peer[this.index].opened()
             .then((id: any) => {
                 const container = <HTMLElement>document.getElementById("peerid");
-                const idElement = document.createElement("span");
+                const idElement = document.createElement("div");
                 idElement.textContent = id;
                 container.insertAdjacentElement("beforeend", idElement);
             })

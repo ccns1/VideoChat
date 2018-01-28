@@ -10,7 +10,6 @@ class MultiVideoChat {
         this.peer[this.index] = new HandlePeer();
         this.peer[this.index].getUserMedia()
             .then((stream) => {
-            console.log("getUserMedia");
             this.showVideoSelf(stream);
             this.audio = new HandleAudio(stream);
         })
@@ -53,7 +52,7 @@ class MultiVideoChat {
     showVideoFirst(stream) {
         const video = document.getElementById("video-first");
         video.src = URL.createObjectURL(stream);
-        this.setCanvas(video, this.index);
+        this.setCanvas(video, 1);
     }
     setCanvas(video, number) {
         const canvas = document.getElementById("conpose-canvas");
