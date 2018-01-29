@@ -15,18 +15,13 @@
 <body>
     <h1>P2P Video Chat</h1>
     <div id="video">
-        self vide
         <video id="video-self" width="200" autoplay></video>
     </div>
-    <div>
-        合成 canvas
-        <canvas id="conpose-canvas" width="800"></canvas>
-    </div>
-    stream変換 video
+    <canvas id="conpose-canvas" width="800"></canvas>
     <video id="conposed-stream" width="800" autoplay></video>
     <div id="login">
         <div>
-            <label for="name">名前: </label>
+            <label for="name">name: </label>
             <input type="text" id="name" name="name" placeholder="Name">
         </div>
         <div>
@@ -35,8 +30,8 @@
     </div>
     <div id="connect">
         <div>
-            <span id="namebox"></span>さんのPeerIDは
-            <span id="peerid"></span>です
+            <span id="namebox"></span>PeerID:
+            <span id="peerid"></span>
         </div>
     </div>
     <div id="disconnect">

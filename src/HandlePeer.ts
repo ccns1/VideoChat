@@ -29,14 +29,14 @@ class HandlePeer {
         });
     }
 
-            public getUserMedia(): any {
-                return navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-                    .then(stream => {
-                        this.localStream = stream;
-                        return stream;
-                    })
-                    .catch(error => console.error(error));
-            }
+    public getUserMedia(): any {
+        return navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then(stream => {
+                this.localStream = stream;
+                return stream;
+            })
+            .catch(error => console.error(error));
+    }
 
     //相手からのcallを受けた時にビデオの表示を行う
     public called(stream: MediaStream): Promise<MediaStream> {
@@ -60,8 +60,8 @@ class HandlePeer {
 
     public call(destId: number): Promise<MediaStream> {
         return new Promise((resolve, jeject) => {
-        this.destId = destId;
-        console.log('this.destId: ' + this.destId);
+            this.destId = destId;
+            console.log('this.destId: ' + this.destId);
             const call = this.peer.call(this.destId, this.localStream);
             call.on('stream', (stream: MediaStream) => resolve(stream));
             // this.callConnection = this.peer.call(this.destId, this.localStream);

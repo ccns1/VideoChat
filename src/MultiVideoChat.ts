@@ -27,6 +27,7 @@ class MultiVideoChat {
         this.peer[index].getUserMedia()
             .then((stream: MediaStream) => {
                 this.showVideoSelf(stream);
+                //fix test用にMCUの自STREAMを表示する
                 this.audio.addStream(stream);
             })
             .catch((reason: any) => console.error(reason));
@@ -62,29 +63,30 @@ class MultiVideoChat {
     }
 
     private setStreamForCanvas(index: number, stream: MediaStream) {
-        const name = <HTMLElement>document.createElement("span");
-        name.textContent = `stream${index}`;
         const videoElement = <HTMLVideoElement>document.createElement("video");
         videoElement.setAttribute("autoplay", "autoplay");
         videoElement.setAttribute("width", "200");
         videoElement.src = URL.createObjectURL(stream);
+
         const container = <HTMLElement>document.getElementById("video");
-        container.insertAdjacentElement("beforeend", name);
         container.insertAdjacentElement("beforeend", videoElement);
+
         this.setCanvas(videoElement, index+1);
     }
 
     private setCanvas(video: HTMLVideoElement, number: number) {
         const canvas = <HTMLCanvasElement>document.getElementById("conpose-canvas");
         const context = <CanvasRenderingContext2D>canvas.getContext("2d");
-        // const cx = canvas.width - ((number + 1) * video.width);
-        // const cy = (number % 4) * video.height;
-        const cx = 800 - ((number + 1) * 200);
-        const cy = 0;
+        const cx = canvas.width - ((number + 1) * video.width);
+        const cy = (number % 4) * video.height;
+        // const cx = 800 - ((number + 1) * 200);
+        // const cy = 0;
 
         //鏡合わせにする
         canvas.style.transform = "scaleX(-1)";
-        // context.drawImage(video, cx, cy, video.width, (video.width * video.videoHeight) / video.videoWidth);
+        context.fillStyle = "#f5f5f5";
+        // context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(video, cx, cy, video.width, (video.width * video.videoHeight) / video.videoWidth);
         context.drawImage(video, cx, cy, 200, 200);
         requestAnimationFrame(() => this.setCanvas(video, number));
     }
@@ -105,4 +107,7 @@ window.onload = () => {
     multi.start(index);
     multi.showSelf(index);
     multi.waitToCall(index);
+    // index++;
+    // multi.start(index);
+    // multi.waitToCall(index);
 };
