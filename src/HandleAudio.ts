@@ -1,18 +1,16 @@
 class HandleAudio {
     private audioContext: AudioContext;
-    private source: any;
+    private dest: MediaStreamAudioDestinationNode;
 
-    constructor(stream: MediaStream) {
+    constructor() {
         // const audioContext = new (window || window.webkitAudioContext)();
         this.audioContext = new window.AudioContext();
-        this.source = this.audioContext.createMediaStreamSource(stream);
+        this.dest = this.audioContext.createMediaStreamDestination();
     }
 
     public addStream(stream: MediaStream): MediaStream {
         const addSource = this.audioContext.createMediaStreamSource(stream);
-        const dest = this.audioContext.createMediaStreamDestination();
-        this.source.connect(dest);
-        addSource.connect(dest);
-        return dest.stream;
+        addSource.connect(this.dest);
+        return this.dest.stream;
     }
 }

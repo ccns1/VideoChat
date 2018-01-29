@@ -7,9 +7,9 @@ class MultiVideoChatClient {
         this.firstPeer = new HandlePeer();
 
         this.firstPeer.getUserMedia()
-            .then((stream: any) => {
+            .then((stream: MediaStream) => {
                 console.log("getUserMedia");
-                // this.showVideoSelf(stream);
+                this.showVideoSelf(stream);
             })
             .catch((reason: any) => console.error(reason));
 
@@ -80,10 +80,10 @@ class MultiVideoChatClient {
         });
     }
 
-    // private showVideoSelf(stream: MediaStream) {
-    //     const video = <HTMLVideoElement>document.getElementById("video-self");
-    //     video.src = URL.createObjectURL(stream);
-    // }
+    private showVideoSelf(stream: MediaStream) {
+        const video = <HTMLVideoElement>document.getElementById("video-self");
+        video.src = URL.createObjectURL(stream);
+    }
 
     private showVideoHost(stream: MediaStream) {
         const video = <HTMLVideoElement>document.getElementById("video-host");

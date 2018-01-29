@@ -3,21 +3,16 @@ class MultiVideoChat {
     constructor() {
         this.peer = [];
         this.index = 0;
+        this.audio = new HandleAudio();
         this.conposedStream = new MediaStream();
     }
     start() {
-        this.setConposedScreen();
+        this.getComposeCanvas();
         this.peer[this.index] = new HandlePeer();
-        this.peer[this.index].getUserMedia()
-            .then((stream) => {
-            this.showVideoSelf(stream);
-            this.audio = new HandleAudio(stream);
-        })
-            .catch((reason) => console.error(reason));
         this.peer[this.index].opened()
             .then((id) => {
             const container = document.getElementById("peerid");
-            const idElement = document.createElement("span");
+            const idElement = document.createElement("div");
             idElement.textContent = id;
             container.insertAdjacentElement("beforeend", idElement);
         })
@@ -25,9 +20,19 @@ class MultiVideoChat {
         this.peer[this.index].error()
             .then((error) => console.error(error))
             .catch((reason) => console.error(reason));
+    }
+    showSelf() {
+        this.peer[this.index].getUserMedia()
+            .then((stream) => {
+            this.showVideoSelf(stream);
+            this.audio.addStream(stream);
+        })
+            .catch((reason) => console.error(reason));
+    }
+    waitToCall() {
         this.peer[this.index].called(this.conposedStream)
             .then((stream) => {
-            this.showVideoFirst(stream);
+            this.showVideo(this.index, stream);
             const audioStream = this.audio.addStream(stream);
             this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
             this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
@@ -49,10 +54,13 @@ class MultiVideoChat {
         video.src = URL.createObjectURL(stream);
         this.setCanvas(video, 0);
     }
-    showVideoFirst(stream) {
-        const video = document.getElementById("video-first");
-        video.src = URL.createObjectURL(stream);
-        this.setCanvas(video, 1);
+    showVideo(index, stream) {
+        const container = document.getElementById("video");
+        const videoElement = document.createElement(`video${index}`);
+        videoElement.autoplay = true;
+        videoElement.src = URL.createObjectURL(stream);
+        container.insertAdjacentElement("beforeend", videoElement);
+        this.setCanvas(videoElement, index);
     }
     setCanvas(video, number) {
         const canvas = document.getElementById("conpose-canvas");
@@ -63,7 +71,7 @@ class MultiVideoChat {
         context.drawImage(video, cx, cy, video.width, (video.width * video.videoHeight) / video.videoWidth);
         requestAnimationFrame(() => this.setCanvas(video, number));
     }
-    setConposedScreen() {
+    getComposeCanvas() {
         const canvas = document.getElementById("conpose-canvas");
         this.conposedVideo = canvas.captureStream();
         this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
@@ -74,5 +82,7 @@ class MultiVideoChat {
 window.onload = () => {
     const multi = new MultiVideoChat();
     multi.start();
+    multi.showSelf();
+    multi.waitToCall();
 };
 //# sourceMappingURL=MultiVideoChat.js.map
