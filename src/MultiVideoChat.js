@@ -32,7 +32,7 @@ class MultiVideoChat {
     waitToCall() {
         this.peer[this.index].called(this.conposedStream)
             .then((stream) => {
-            this.showVideo(this.index, stream);
+            this.showStream(this.index, stream);
             const audioStream = this.audio.addStream(stream);
             this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
             this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
@@ -54,21 +54,23 @@ class MultiVideoChat {
         video.src = URL.createObjectURL(stream);
         this.setCanvas(video, 0);
     }
-    showVideo(index, stream) {
+    showStream(index, stream) {
         const container = document.getElementById("video");
-        const videoElement = document.createElement(`video${index}`);
-        videoElement.autoplay = true;
+        const name = document.createElement("span");
+        const videoElement = document.createElement("video");
+        videoElement.setAttribute("autoplay", "autoplay");
         videoElement.src = URL.createObjectURL(stream);
+        container.insertAdjacentElement("beforeend", name);
         container.insertAdjacentElement("beforeend", videoElement);
-        this.setCanvas(videoElement, index);
+        this.setCanvas(videoElement, index + 1);
     }
     setCanvas(video, number) {
         const canvas = document.getElementById("conpose-canvas");
         const context = canvas.getContext("2d");
-        const cx = canvas.width - ((number + 1) * video.width);
-        const cy = (number % 4) * video.height;
+        const cx = 800 - ((number + 1) * 200);
+        const cy = (number % 4) * 200;
         canvas.style.transform = "scaleX(-1)";
-        context.drawImage(video, cx, cy, video.width, (video.width * video.videoHeight) / video.videoWidth);
+        context.drawImage(video, cx, cy, 200, 200);
         requestAnimationFrame(() => this.setCanvas(video, number));
     }
     getComposeCanvas() {
