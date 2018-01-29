@@ -3,8 +3,7 @@ class HandleAudio {
     private dest: MediaStreamAudioDestinationNode;
 
     constructor() {
-        // const audioContext = new (window || window.webkitAudioContext)();
-        this.audioContext = new window.AudioContext();
+        this.audioContext = new window.AudioContext || new webkitAudioContext();
         this.dest = this.audioContext.createMediaStreamDestination();
     }
 

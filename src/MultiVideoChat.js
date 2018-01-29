@@ -32,13 +32,10 @@ class MultiVideoChat {
     waitToCall() {
         this.peer[this.index].called(this.conposedStream)
             .then((stream) => {
-            this.showStream(this.index, stream);
+            this.setStreamForCanvas(this.index, stream);
             const audioStream = this.audio.addStream(stream);
             this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
             this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
-            const video = document.getElementById("test");
-            video.src = URL.createObjectURL(this.conposedStream);
-            this.peer[this.index].answerStream(this.conposedStream);
         })
             .catch((reason) => console.error(reason));
         this.dissconnectEvent();
@@ -54,12 +51,14 @@ class MultiVideoChat {
         video.src = URL.createObjectURL(stream);
         this.setCanvas(video, 0);
     }
-    showStream(index, stream) {
-        const container = document.getElementById("video");
+    setStreamForCanvas(index, stream) {
         const name = document.createElement("span");
+        name.textContent = `stream${index}`;
         const videoElement = document.createElement("video");
         videoElement.setAttribute("autoplay", "autoplay");
+        videoElement.setAttribute("width", "200");
         videoElement.src = URL.createObjectURL(stream);
+        const container = document.getElementById("video");
         container.insertAdjacentElement("beforeend", name);
         container.insertAdjacentElement("beforeend", videoElement);
         this.setCanvas(videoElement, index + 1);
@@ -68,7 +67,7 @@ class MultiVideoChat {
         const canvas = document.getElementById("conpose-canvas");
         const context = canvas.getContext("2d");
         const cx = 800 - ((number + 1) * 200);
-        const cy = (number % 4) * 200;
+        const cy = 0;
         canvas.style.transform = "scaleX(-1)";
         context.drawImage(video, cx, cy, 200, 200);
         requestAnimationFrame(() => this.setCanvas(video, number));

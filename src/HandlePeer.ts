@@ -44,7 +44,7 @@ class HandlePeer {
             this.peer.on('call', (call: any) => {
                 console.log('called from: ' + call.peer);
                 this.destId = call.peer;
-                this.callConnection = call;
+                // this.callConnection = call;
                 call.answer(stream);
                 call.on('stream', (stream: MediaStream) => {
                     resolve(stream)
@@ -54,9 +54,9 @@ class HandlePeer {
     }
 
     //fix callConnection の分割を削除する
-    public answerStream(stream: MediaStream): void {
-        this.callConnection.answer(stream);
-    }
+    // public answerStream(stream: MediaStream): void {
+    //     this.callConnection.answer(stream);
+    // }
 
     public call(destId: number): Promise<MediaStream> {
         return new Promise((resolve, jeject) => {

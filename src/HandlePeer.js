@@ -33,16 +33,12 @@ class HandlePeer {
             this.peer.on('call', (call) => {
                 console.log('called from: ' + call.peer);
                 this.destId = call.peer;
-                this.callConnection = call;
                 call.answer(stream);
                 call.on('stream', (stream) => {
                     resolve(stream);
                 });
             });
         });
-    }
-    answerStream(stream) {
-        this.callConnection.answer(stream);
     }
     call(destId) {
         return new Promise((resolve, jeject) => {

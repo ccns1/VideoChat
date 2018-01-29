@@ -36,17 +36,13 @@ class MultiVideoChat {
     public waitToCall() {
         this.peer[this.index].called(this.conposedStream)
             .then((stream: MediaStream) => {
-                this.showStream(this.index, stream);
+                this.setStreamForCanvas(this.index, stream);
                 const audioStream = this.audio.addStream(stream);
                 this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
                 this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
 
-                //fix 合成したストリームを表示する
-                const video = <HTMLVideoElement>document.getElementById("test");
-                video.src = URL.createObjectURL(this.conposedStream);
-
                 //todo 2度返す
-                this.peer[this.index].answerStream(this.conposedStream);
+                // this.peer[this.index].answerStream(this.conposedStream);
             })
             .catch((reason: any) => console.error(reason));
 
@@ -66,24 +62,26 @@ class MultiVideoChat {
         this.setCanvas(video, 0);
     }
 
-    private showStream(index: number, stream: MediaStream) {
-        const container = <HTMLElement>document.getElementById("video");
+    private setStreamForCanvas(index: number, stream: MediaStream) {
         const name = <HTMLElement>document.createElement("span");
+        name.textContent = `stream${index}`;
         const videoElement = <HTMLVideoElement>document.createElement("video");
         videoElement.setAttribute("autoplay", "autoplay");
+        videoElement.setAttribute("width", "200");
         videoElement.src = URL.createObjectURL(stream);
+        const container = <HTMLElement>document.getElementById("video");
         container.insertAdjacentElement("beforeend", name);
         container.insertAdjacentElement("beforeend", videoElement);
         this.setCanvas(videoElement, index+1);
     }
 
     private setCanvas(video: HTMLVideoElement, number: number) {
-        const canvas: any = document.getElementById("conpose-canvas");
+        const canvas = <HTMLCanvasElement>document.getElementById("conpose-canvas");
         const context = <CanvasRenderingContext2D>canvas.getContext("2d");
         // const cx = canvas.width - ((number + 1) * video.width);
         // const cy = (number % 4) * video.height;
         const cx = 800 - ((number + 1) * 200);
-        const cy = (number % 4) * 200;
+        const cy = 0;
 
         //鏡合わせにする
         canvas.style.transform = "scaleX(-1)";

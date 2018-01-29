@@ -1,7 +1,7 @@
 "use strict";
 class HandleAudio {
     constructor() {
-        this.audioContext = new window.AudioContext();
+        this.audioContext = new window.AudioContext || new webkitAudioContext();
         this.dest = this.audioContext.createMediaStreamDestination();
     }
     addStream(stream) {
