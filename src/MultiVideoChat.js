@@ -65,9 +65,7 @@ class MultiVideoChat {
         const cx = canvas.width - ((number + 1) * video.width);
         const cy = (number % 4) * video.height;
         canvas.style.transform = "scaleX(-1)";
-        context.fillStyle = "#f5f5f5";
         context.drawImage(video, cx, cy, video.width, (video.width * video.videoHeight) / video.videoWidth);
-        context.drawImage(video, cx, cy, 200, 200);
         requestAnimationFrame(() => this.setCanvas(video, number));
     }
     getComposeCanvas() {
@@ -83,6 +81,9 @@ window.onload = () => {
     const multi = new MultiVideoChat();
     multi.start(index);
     multi.showSelf(index);
+    multi.waitToCall(index);
+    index++;
+    multi.start(index);
     multi.waitToCall(index);
 };
 //# sourceMappingURL=MultiVideoChat.js.map

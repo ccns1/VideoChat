@@ -79,15 +79,10 @@ class MultiVideoChat {
         const context = <CanvasRenderingContext2D>canvas.getContext("2d");
         const cx = canvas.width - ((number + 1) * video.width);
         const cy = (number % 4) * video.height;
-        // const cx = 800 - ((number + 1) * 200);
-        // const cy = 0;
 
         //鏡合わせにする
         canvas.style.transform = "scaleX(-1)";
-        context.fillStyle = "#f5f5f5";
-        // context.fillRect(0, 0, canvas.width, canvas.height);
         context.drawImage(video, cx, cy, video.width, (video.width * video.videoHeight) / video.videoWidth);
-        context.drawImage(video, cx, cy, 200, 200);
         requestAnimationFrame(() => this.setCanvas(video, number));
     }
 
@@ -107,7 +102,7 @@ window.onload = () => {
     multi.start(index);
     multi.showSelf(index);
     multi.waitToCall(index);
-    // index++;
-    // multi.start(index);
-    // multi.waitToCall(index);
+    index++;
+    multi.start(index);
+    multi.waitToCall(index);
 };
