@@ -29,14 +29,14 @@ class HandlePeer {
         });
     }
 
-            public getUserMedia(): any {
-                return navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-                    .then(stream => {
-                        this.localStream = stream;
-                        return stream;
-                    })
-                    .catch(error => console.error(error));
-            }
+    public getUserMedia(): any {
+        return navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then(stream => {
+                this.localStream = stream;
+                return stream;
+            })
+            .catch(error => console.error(error));
+    }
 
     //相手からのcallを受けた時にビデオの表示を行う
     public called(stream: MediaStream): Promise<MediaStream> {
@@ -44,7 +44,7 @@ class HandlePeer {
             this.peer.on('call', (call: any) => {
                 console.log('called from: ' + call.peer);
                 this.destId = call.peer;
-                this.callConnection = call;
+                // this.callConnection = call;
                 call.answer(stream);
                 call.on('stream', (stream: MediaStream) => {
                     resolve(stream)
@@ -53,14 +53,15 @@ class HandlePeer {
         });
     }
 
-    public answerStream(stream: MediaStream): void {
-        this.callConnection.answer(stream);
-    }
+    //fix callConnection の分割を削除する
+    // public answerStream(stream: MediaStream): void {
+    //     this.callConnection.answer(stream);
+    // }
 
     public call(destId: number): Promise<MediaStream> {
         return new Promise((resolve, jeject) => {
-        this.destId = destId;
-        console.log('this.destId: ' + this.destId);
+            this.destId = destId;
+            console.log('this.destId: ' + this.destId);
             const call = this.peer.call(this.destId, this.localStream);
             call.on('stream', (stream: MediaStream) => resolve(stream));
             // this.callConnection = this.peer.call(this.destId, this.localStream);
