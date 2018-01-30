@@ -69,4 +69,4 @@ window.onload = () => {
     const client = new MultiVideoChatClient();
     client.start();
 };
-//# sourceMappingURL=MultiVideoChatClient.js.map
+//# sourceMappingURL=client.js.map

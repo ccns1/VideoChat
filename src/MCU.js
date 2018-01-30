@@ -86,4 +86,4 @@ window.onload = () => {
     multi.start(index);
     multi.waitToCall(index);
 };
-//# sourceMappingURL=MultiVideoChat.js.map
+//# sourceMappingURL=MCU.js.map

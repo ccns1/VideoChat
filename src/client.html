@@ -6,19 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="./peer.js"></script>
-    <script src="./MultiVideoChat.js"></script>
+    <script src="./client.js"></script>
     <script src="./HandlePeer.js"></script>
-    <script src="./HandleAudio.js"></script>
-    <title>MCU</title>
+    <title>P2PVideo</title>
 </head>
 
 <body>
-    <h1>Multipoint Control Unit</h1>
-    <div id="video">
-        <video id="video-self" width="200" autoplay></video>
+    <h1>Multi Video Chat Client</h1>
+    <div>
+        <video id="video-host" width="800" autoplay></video>
     </div>
-    <canvas id="conpose-canvas" width="800"></canvas>
-    <video id="conposed-stream" width="800" autoplay></video>
     <div id="login">
         <div>
             <label for="name">name: </label>
@@ -26,12 +23,21 @@
         </div>
         <div>
             <input type="button" id="loginbutton" value="login">
-        </div>
+         </div>
     </div>
     <div id="connect">
         <div>
             <span id="namebox"></span>PeerID:
             <span id="peerid"></span>
+        </div>
+        <div id="connect">
+            <div>
+                <label for="destid">接続先PeerID: </label>
+                <input type="text" id="destid" name="destid">
+            </div>
+            <div>
+                <input type="button" id="connectbutton" value="connect">
+            </div>
         </div>
     </div>
     <div id="disconnect">
