@@ -1,15 +1,16 @@
 class MultiVideoChat {
     private peer: Array<HandlePeer> = [];
+    private index = 0;
     private conposedVideo: MediaStream;
     private audio = new HandleAudio();
     private conposedStream = new MediaStream();
 
-    public start(index: number) {
+    public start() {
         //canvasをstreamとして取得する
         this.getComposeCanvas();
 
-        this.peer[index] = new HandlePeer();
-        this.peer[index].opened()
+        this.peer[this.index] = new HandlePeer();
+        this.peer[this.index].opened()
             .then((id: any) => {
                 const container = <HTMLElement>document.getElementById("peerid");
                 const idElement = document.createElement("div");
@@ -18,51 +19,53 @@ class MultiVideoChat {
             })
             .catch((reason: any) => console.error(reason));
 
-        this.peer[index].error()
+        this.peer[this.index].error()
             .then((error: any) => console.error(error))
             .catch((reason: any) => console.error(reason));
     }
 
-    public showSelf(index: number) {
-        this.peer[index].getUserMedia()
+    public showSelf() {
+        this.peer[this.index].getUserMedia()
             .then((stream: MediaStream) => {
-                this.showVideoSelf(stream);
+                this.setSelfStreamForCanvas(stream);
                 //fix test用にMCUの自STREAMを表示する
                 this.audio.addStream(stream);
             })
             .catch((reason: any) => console.error(reason));
     }
 
-    public waitToCall(index: number) {
-        this.peer[index].called(this.conposedStream)
+    public waitToCall() {
+        this.peer[this.index].called(this.conposedStream)
             .then((stream: MediaStream) => {
-                this.setStreamForCanvas(index, stream);
+                this.setStreamForCanvas(this.index, stream);
                 const audioStream = this.audio.addStream(stream);
                 this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
                 this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
 
-                //todo 2度返す
-                // this.peer[index].answerStream(this.conposedStream);
+                this.index++;
+                this.start();
+                this.showSelf();
+                this.waitToCall();
             })
             .catch((reason: any) => console.error(reason));
 
-        this.dissconnectEvent(index);
+        this.dissconnectEvent();
     }
 
-    private dissconnectEvent(index: number) {
+    private dissconnectEvent() {
         const dissconnectFirst: HTMLInputElement = <HTMLInputElement>document.getElementById("dissconnectbutton");
         dissconnectFirst.addEventListener("click", () => {
-            this.peer[index].reset();
+            this.peer[this.index].reset();
         });
     }
 
-    private showVideoSelf(stream: MediaStream) {
+    private setSelfStreamForCanvas(stream: MediaStream) {
         const video = <HTMLVideoElement>document.getElementById("video-self");
         video.src = URL.createObjectURL(stream);
         this.setCanvas(video, 0);
     }
 
-    private setStreamForCanvas(index: number, stream: MediaStream) {
+    private setStreamForCanvas(number: number, stream: MediaStream) {
         const videoElement = <HTMLVideoElement>document.createElement("video");
         videoElement.setAttribute("autoplay", "autoplay");
         videoElement.setAttribute("width", "200");
@@ -71,7 +74,7 @@ class MultiVideoChat {
         const container = <HTMLElement>document.getElementById("video");
         container.insertAdjacentElement("beforeend", videoElement);
 
-        this.setCanvas(videoElement, index+1);
+        this.setCanvas(videoElement, number + 1);
     }
 
     private setCanvas(video: HTMLVideoElement, number: number) {
@@ -97,12 +100,8 @@ class MultiVideoChat {
 }
 
 window.onload = () => {
-    let index = 0;
     const multi: MultiVideoChat = new MultiVideoChat();
-    multi.start(index);
-    multi.showSelf(index);
-    multi.waitToCall(index);
-    index++;
-    multi.start(index);
-    multi.waitToCall(index);
+    multi.start();
+    multi.showSelf();
+    multi.waitToCall();
 };

@@ -2,13 +2,14 @@
 class MultiVideoChat {
     constructor() {
         this.peer = [];
+        this.index = 0;
         this.audio = new HandleAudio();
         this.conposedStream = new MediaStream();
     }
-    start(index) {
+    start() {
         this.getComposeCanvas();
-        this.peer[index] = new HandlePeer();
-        this.peer[index].opened()
+        this.peer[this.index] = new HandlePeer();
+        this.peer[this.index].opened()
             .then((id) => {
             const container = document.getElementById("peerid");
             const idElement = document.createElement("div");
@@ -16,48 +17,52 @@ class MultiVideoChat {
             container.insertAdjacentElement("beforeend", idElement);
         })
             .catch((reason) => console.error(reason));
-        this.peer[index].error()
+        this.peer[this.index].error()
             .then((error) => console.error(error))
             .catch((reason) => console.error(reason));
     }
-    showSelf(index) {
-        this.peer[index].getUserMedia()
+    showSelf() {
+        this.peer[this.index].getUserMedia()
             .then((stream) => {
-            this.showVideoSelf(stream);
+            this.setSelfStreamForCanvas(stream);
             this.audio.addStream(stream);
         })
             .catch((reason) => console.error(reason));
     }
-    waitToCall(index) {
-        this.peer[index].called(this.conposedStream)
+    waitToCall() {
+        this.peer[this.index].called(this.conposedStream)
             .then((stream) => {
-            this.setStreamForCanvas(index, stream);
+            this.setStreamForCanvas(this.index, stream);
             const audioStream = this.audio.addStream(stream);
             this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
             this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
+            this.index++;
+            this.start();
+            this.showSelf();
+            this.waitToCall();
         })
             .catch((reason) => console.error(reason));
-        this.dissconnectEvent(index);
+        this.dissconnectEvent();
     }
-    dissconnectEvent(index) {
+    dissconnectEvent() {
         const dissconnectFirst = document.getElementById("dissconnectbutton");
         dissconnectFirst.addEventListener("click", () => {
-            this.peer[index].reset();
+            this.peer[this.index].reset();
         });
     }
-    showVideoSelf(stream) {
+    setSelfStreamForCanvas(stream) {
         const video = document.getElementById("video-self");
         video.src = URL.createObjectURL(stream);
         this.setCanvas(video, 0);
     }
-    setStreamForCanvas(index, stream) {
+    setStreamForCanvas(number, stream) {
         const videoElement = document.createElement("video");
         videoElement.setAttribute("autoplay", "autoplay");
         videoElement.setAttribute("width", "200");
         videoElement.src = URL.createObjectURL(stream);
         const container = document.getElementById("video");
         container.insertAdjacentElement("beforeend", videoElement);
-        this.setCanvas(videoElement, index + 1);
+        this.setCanvas(videoElement, number + 1);
     }
     setCanvas(video, number) {
         const canvas = document.getElementById("conpose-canvas");
@@ -77,13 +82,9 @@ class MultiVideoChat {
     }
 }
 window.onload = () => {
-    let index = 0;
     const multi = new MultiVideoChat();
-    multi.start(index);
-    multi.showSelf(index);
-    multi.waitToCall(index);
-    index++;
-    multi.start(index);
-    multi.waitToCall(index);
+    multi.start();
+    multi.showSelf();
+    multi.waitToCall();
 };
 //# sourceMappingURL=MCU.js.map
