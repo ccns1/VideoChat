@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 class HandleAudio {
     constructor() {
         this.audioContext = new window.AudioContext || new webkitAudioContext();
@@ -10,4 +11,5 @@ class HandleAudio {
         return this.dest.stream;
     }
 }
+exports.default = HandleAudio;
 //# sourceMappingURL=HandleAudio.js.map

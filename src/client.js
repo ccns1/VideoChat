@@ -1,10 +1,12 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const HandlePeer_1 = require("./HandlePeer");
 class MultiVideoChatClient {
     constructor() {
         this.hostStream = new MediaStream();
     }
     start() {
-        this.firstPeer = new HandlePeer();
+        this.firstPeer = new HandlePeer_1.default();
         this.firstPeer.getUserMedia()
             .then((stream) => {
             console.log("getUserMedia");
