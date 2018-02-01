@@ -1,3 +1,5 @@
+const path = require("path");
+
 module.exports = {
     watch: true,
     entry: {
@@ -5,7 +7,7 @@ module.exports = {
         client: "./src/client.ts"
     },
     output: {
-        path: `${__dirname}/public/js`,
+        path: `${__dirname}/dist/js`,
         filename: "[name]Bundle.js"
     },
     module: {
@@ -13,6 +15,7 @@ module.exports = {
             {
                 test: /\.ts$/,
                 use: "ts-loader",
+                exclude: /node_modules/
             }
         ]
     },
@@ -23,5 +26,5 @@ module.exports = {
         ]
     },
     // ソースマップを有効にする
-    devtool: "sorce-map"
+    devtool: "inline-sorce-map"
 };
