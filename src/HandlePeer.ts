@@ -113,3 +113,5 @@ class HandlePeer {
         return this.dataConnection.metadata.name;
     }
 }
+
+export default HandlePeer;

@@ -1,3 +1,6 @@
+import HandlePeer from "./HandlePeer";
+import HandleAudio from "./HandleAudio";
+
 class MultiVideoChat {
     private peer: Array<HandlePeer> = [];
     private conposedVideo: MediaStream;
