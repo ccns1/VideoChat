@@ -1,14 +1,17 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const HandlePeer_1 = require("./HandlePeer");
+const HandleAudio_1 = require("./HandleAudio");
 class MultiVideoChat {
     constructor() {
         this.peer = [];
         this.index = 0;
-        this.audio = new HandleAudio();
+        this.audio = new HandleAudio_1.default();
         this.conposedStream = new MediaStream();
     }
     start() {
         this.getComposeCanvas();
-        this.peer[this.index] = new HandlePeer();
+        this.peer[this.index] = new HandlePeer_1.default();
         this.peer[this.index].opened()
             .then((id) => {
             const container = document.getElementById("peerid");

@@ -1,7 +1,6 @@
 const path = require("path");
 
 module.exports = {
-    watch: true,
     entry: {
         MCU: "./src/MCU.ts",
         client: "./src/client.ts"

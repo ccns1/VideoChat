@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 class HandlePeer {
     constructor() {
         const peerId = String(Math.floor(Math.random() * 900) + 100);
@@ -84,4 +85,5 @@ class HandlePeer {
         return this.dataConnection.metadata.name;
     }
 }
+exports.default = HandlePeer;
 //# sourceMappingURL=HandlePeer.js.map

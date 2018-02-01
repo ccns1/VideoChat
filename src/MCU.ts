@@ -31,7 +31,6 @@ class MultiVideoChat {
         this.peer[this.index].getUserMedia()
             .then((stream: MediaStream) => {
                 this.setSelfStreamForCanvas(stream);
-                //fix test用にMCUの自STREAMを表示する
                 this.audio.addStream(stream);
             })
             .catch((reason: any) => console.error(reason));
@@ -40,7 +39,7 @@ class MultiVideoChat {
     public waitToCall() {
         this.peer[this.index].called(this.conposedStream)
             .then((stream: MediaStream) => {
-                this.setStreamForCanvas(this.index, stream);
+                this.setStreamForCanvas(stream);
                 const audioStream = this.audio.addStream(stream);
                 this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
                 this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
@@ -68,7 +67,7 @@ class MultiVideoChat {
         this.setCanvas(video, 0);
     }
 
-    private setStreamForCanvas(number: number, stream: MediaStream) {
+    private setStreamForCanvas(stream: MediaStream) {
         const videoElement = <HTMLVideoElement>document.createElement("video");
         videoElement.setAttribute("autoplay", "autoplay");
         videoElement.setAttribute("width", "200");
@@ -77,14 +76,14 @@ class MultiVideoChat {
         const container = <HTMLElement>document.getElementById("video");
         container.insertAdjacentElement("beforeend", videoElement);
 
-        this.setCanvas(videoElement, number + 1);
+        this.setCanvas(videoElement, this.index + 1);
     }
 
     private setCanvas(video: HTMLVideoElement, number: number) {
         const canvas = <HTMLCanvasElement>document.getElementById("conpose-canvas");
         const context = <CanvasRenderingContext2D>canvas.getContext("2d");
-        const cx = canvas.width - ((number + 1) * video.width);
-        const cy = (number % 4) * video.height;
+        const cx = number % 4 * canvas.width / 4;
+        const cy = Math.floor(number / 4) * canvas.width / 4;
 
         //鏡合わせにする
         canvas.style.transform = "scaleX(-1)";
@@ -96,9 +95,6 @@ class MultiVideoChat {
         const canvas: any = <HTMLCanvasElement>document.getElementById("conpose-canvas");
         this.conposedVideo = canvas.captureStream();
         this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
-
-        const conposed = <HTMLVideoElement>document.getElementById("conposed-stream");
-        conposed.src = URL.createObjectURL(this.conposedVideo);
     }
 }
 
