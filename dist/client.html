@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="./js/peer.js"></script>
+    <script src="./js/clientBundle.js"></script>
+    <title>P2PVideo</title>
+</head>
+
+<body>
+    <h1>Multi Video Chat Client</h1>
+    <div>
+        <video id="video-host" width="800" autoplay></video>
+    </div>
+    <div id="login">
+        <div>
+            <label for="name">name: </label>
+            <input type="text" id="name" name="name" placeholder="Name">
+        </div>
+        <div>
+            <input type="button" id="loginbutton" value="login">
+         </div>
+    </div>
+    <div id="connect">
+        <div>
+            <span id="namebox"></span>PeerID:
+            <span id="peerid"></span>
+        </div>
+        <div id="connect">
+            <div>
+                <label for="destid">接続先PeerID: </label>
+                <input type="text" id="destid" name="destid">
+            </div>
+            <div>
+                <input type="button" id="connectbutton" value="connect">
+            </div>
+        </div>
+    </div>
+    <div id="disconnect">
+        <input type="button" id="dissconnectbutton" value="disconect">
+    </div>
+</body>
+
+</html>

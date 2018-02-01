@@ -1,3 +1,5 @@
+import HandlePeer from "./HandlePeer";
+
 class MultiVideoChatClient {
     private firstPeer: HandlePeer;
     private context: any;
