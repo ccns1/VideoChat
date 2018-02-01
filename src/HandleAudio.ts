@@ -13,3 +13,5 @@ class HandleAudio {
         return this.dest.stream;
     }
 }
+
+export default HandleAudio;
