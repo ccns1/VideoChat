@@ -102,11 +102,11 @@ class HandlePeer {
     called(stream) {
         return new Promise((resolve, reject) => {
             this.peer.on('call', (call) => {
-                console.log('called from: ' + call.peer);
                 this.destId = call.peer;
+                console.log();
                 call.answer(stream);
                 call.on('stream', (stream) => {
-                    resolve(stream);
+                    resolve({ name: call.metadata, stream: stream });
                 });
             });
         });
@@ -114,27 +114,34 @@ class HandlePeer {
     call(destId) {
         return new Promise((resolve, jeject) => {
             this.destId = destId;
-            console.log('this.destId: ' + this.destId);
-            const call = this.peer.call(this.destId, this.localStream);
+            const call = this.peer.call(this.destId, this.localStream, { metadata: this.name });
             call.on('stream', (stream) => resolve(stream));
         });
     }
-    connected(handleData) {
-        this.peer.on('connection', (connection) => {
-            this.dataConnection = connection;
-            this.destId = connection.peer;
-            connection.on('data', (data) => handleData(connection.metadata.name, data));
+    connected(handleName) {
+        return new Promise((resolve, reject) => {
+            this.peer.on('connection', (connection) => {
+                this.dataConnection = connection;
+                this.destId = this.dataConnection.peer;
+                handleName(this.dataConnection.metadata.name);
+                this.dataConnection.on('data', (data) => resolve(data));
+            });
         });
     }
-    connect(message) {
-        this.dataConnection = this.peer.connect(this.destId, {
-            metadata: {
-                'name': this.name
-            }
+    connect() {
+        return new Promise((resolve, reject) => {
+            this.dataConnection = this.peer.connect(this.destId, {
+                metadata: {
+                    name: this.name
+                }
+            });
+            this.dataConnection.on('open', () => {
+                this.dataConnection.on('data', (data) => resolve(data));
+            });
         });
-        this.dataConnection.on('open', () => {
-            this.dataConnection.send(message);
-        });
+    }
+    sendMessage(message) {
+        this.dataConnection.send(message);
     }
     reset() {
         this.localStream.getVideoTracks()[0].stop();
@@ -182,6 +189,7 @@ class MultiVideoChat {
             const container = document.getElementById("peerid");
             const idElement = document.createElement("div");
             idElement.textContent = id;
+            idElement.setAttribute("id", `${this.index}`);
             container.insertAdjacentElement("beforeend", idElement);
         })
             .catch((reason) => console.error(reason));
@@ -199,9 +207,11 @@ class MultiVideoChat {
     }
     waitToCall() {
         this.peer[this.index].called(this.conposedStream)
-            .then((stream) => {
-            this.setStreamForCanvas(stream);
-            const audioStream = this.audio.addStream(stream);
+            .then((dest) => {
+            const container = document.getElementById(`${this.index}`);
+            container.insertAdjacentText("beforeend", `: ${dest.name}`);
+            this.setStreamForCanvas(dest.stream);
+            const audioStream = this.audio.addStream(dest.stream);
             this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
             this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
             this.index++;
@@ -228,7 +238,7 @@ class MultiVideoChat {
         videoElement.setAttribute("autoplay", "autoplay");
         videoElement.setAttribute("width", "200");
         videoElement.src = URL.createObjectURL(stream);
-        const container = document.getElementById("video");
+        const container = document.getElementById("videos");
         container.insertAdjacentElement("beforeend", videoElement);
         this.setCanvas(videoElement, this.index + 1);
     }

@@ -18,6 +18,7 @@ class MultiVideoChat {
                 const container = <HTMLElement>document.getElementById("peerid");
                 const idElement = document.createElement("div");
                 idElement.textContent = id;
+                idElement.setAttribute("id", `${this.index}`);
                 container.insertAdjacentElement("beforeend", idElement);
             })
             .catch((reason: any) => console.error(reason));
@@ -37,13 +38,26 @@ class MultiVideoChat {
     }
 
     public waitToCall() {
+        //     this.peer[this.index].connected((destName: string) => {
+        //         console.error(destName);
+        //     })
+        //         .then((data) => {
+        //             console.log(data);
+        //         })
+        //         .catch((reason: any) => console.error(reason));
+
         this.peer[this.index].called(this.conposedStream)
-            .then((stream: MediaStream) => {
-                this.setStreamForCanvas(stream);
-                const audioStream = this.audio.addStream(stream);
+            .then((dest: { name: string, stream: MediaStream }) => {
+                // idの後ろに相手の名前を追加する
+                const container = <HTMLElement>document.getElementById(`${this.index}`);
+                container.insertAdjacentText("beforeend", `: ${dest.name}`);
+
+                this.setStreamForCanvas(dest.stream);
+                const audioStream = this.audio.addStream(dest.stream);
                 this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
                 this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
 
+                // 新しくPeerインスタンスを生成し、接続を待つ
                 this.index++;
                 this.start();
                 this.showSelf();
@@ -73,7 +87,8 @@ class MultiVideoChat {
         videoElement.setAttribute("width", "200");
         videoElement.src = URL.createObjectURL(stream);
 
-        const container = <HTMLElement>document.getElementById("video");
+        // fix 取得したstreamを表示する
+        const container = <HTMLElement>document.getElementById("videos");
         container.insertAdjacentElement("beforeend", videoElement);
 
         this.setCanvas(videoElement, this.index + 1);

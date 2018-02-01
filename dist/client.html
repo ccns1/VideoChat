@@ -12,9 +12,6 @@
 
 <body>
     <h1>Multi Video Chat Client</h1>
-    <div>
-        <video id="video-host" width="800" height="800" autoplay></video>
-    </div>
     <div id="login">
         <div>
             <label for="name">name: </label>
@@ -36,11 +33,14 @@
             </div>
             <div>
                 <input type="button" id="connectbutton" value="connect">
+                <div id="disconnect">
             </div>
         </div>
     </div>
-    <div id="disconnect">
         <input type="button" id="dissconnectbutton" value="disconect">
+    </div>
+    <div>
+        <video id="video-host" width="800" height="800" autoplay></video>
     </div>
 </body>
 

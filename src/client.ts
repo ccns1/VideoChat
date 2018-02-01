@@ -53,21 +53,28 @@ class MultiVideoChatClient {
         const connectFirst: HTMLElement = <HTMLInputElement>document.getElementById("connectbutton");
         connectFirst.addEventListener("click", () => {
             const destIdElement: HTMLInputElement = <HTMLInputElement>document.getElementById("destid");
-            const destId: number = parseInt(destIdElement.value, 10);
+            if (destIdElement.value) {
+                const destId: string = destIdElement.value;
 
-            this.firstPeer.call(destId)
-                .then((stream: MediaStream) => {
-                    console.log("stream catched");
-                    this.hostStream = stream;
-                    return this.hostStream;
-                })
-                //fix 分離する必要があるか
-                .then((stream) => this.showVideoHost(this.hostStream))
-                .catch((reason: any) => console.error(reason));
+                // this.firstPeer.connect()
+                //     .then((data: any) => {
+                //         console.log(data);
+                //     })
+                //     .catch((reason: any) => console.error(reason));
 
-            //todo 接続を失敗した場合画面の遷移を行わない
-            // this.setVisible("connect", false);
-            //todo 接続を受けた場合画面の遷移を行う
+                this.firstPeer.call(destId)
+                    .then((stream: MediaStream) => {
+                        this.hostStream = stream;
+                        return this.hostStream;
+                    })
+                    //fix 分離する必要があるか
+                    .then((stream) => this.showVideoHost(this.hostStream))
+                    .catch((reason: any) => console.error(reason));
+
+                //todo 接続を失敗した場合画面の遷移を行わない
+                // this.setVisible("connect", false);
+                //todo 接続を受けた場合画面の遷移を行う
+            }
         });
     }
 
