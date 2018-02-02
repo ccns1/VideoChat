@@ -102,11 +102,11 @@ class HandlePeer {
     called(stream) {
         return new Promise((resolve, reject) => {
             this.peer.on('call', (call) => {
-                console.log('called from: ' + call.peer);
                 this.destId = call.peer;
+                console.log();
                 call.answer(stream);
                 call.on('stream', (stream) => {
-                    resolve(stream);
+                    resolve({ name: call.metadata, stream: stream });
                 });
             });
         });
@@ -114,27 +114,34 @@ class HandlePeer {
     call(destId) {
         return new Promise((resolve, jeject) => {
             this.destId = destId;
-            console.log('this.destId: ' + this.destId);
-            const call = this.peer.call(this.destId, this.localStream);
+            const call = this.peer.call(this.destId, this.localStream, { metadata: this.name });
             call.on('stream', (stream) => resolve(stream));
         });
     }
-    connected(handleData) {
-        this.peer.on('connection', (connection) => {
-            this.dataConnection = connection;
-            this.destId = connection.peer;
-            connection.on('data', (data) => handleData(connection.metadata.name, data));
+    connected(handleName) {
+        return new Promise((resolve, reject) => {
+            this.peer.on('connection', (connection) => {
+                this.dataConnection = connection;
+                this.destId = this.dataConnection.peer;
+                handleName(this.dataConnection.metadata.name);
+                this.dataConnection.on('data', (data) => resolve(data));
+            });
         });
     }
-    connect(message) {
-        this.dataConnection = this.peer.connect(this.destId, {
-            metadata: {
-                'name': this.name
-            }
+    connect() {
+        return new Promise((resolve, reject) => {
+            this.dataConnection = this.peer.connect(this.destId, {
+                metadata: {
+                    name: this.name
+                }
+            });
+            this.dataConnection.on('open', () => {
+                this.dataConnection.on('data', (data) => resolve(data));
+            });
         });
-        this.dataConnection.on('open', () => {
-            this.dataConnection.send(message);
-        });
+    }
+    sendMessage(message) {
+        this.dataConnection.send(message);
     }
     reset() {
         this.localStream.getVideoTracks()[0].stop();
@@ -172,17 +179,14 @@ class MultiVideoChatClient {
     constructor() {
         this.hostStream = new MediaStream();
     }
-    start() {
+    init() {
+        this.setVisible("login", true);
+        this.setVisible("connect", false);
         this.firstPeer = new HandlePeer_1.default();
-        this.firstPeer.getUserMedia()
-            .then((stream) => {
-            console.log("getUserMedia");
-        })
-            .catch((reason) => console.error(reason));
         this.firstPeer.opened()
             .then((id) => {
             const idElement = document.getElementById("peerid");
-            idElement.innerHTML = id;
+            idElement.insertAdjacentText("beforeend", ` ${id}`);
         })
             .catch((reason) => console.error(reason));
         this.firstPeer.error()
@@ -190,7 +194,6 @@ class MultiVideoChatClient {
             .catch((reason) => console.error(reason));
         this.loginEvent();
         this.callEvent();
-        this.dissconnectEvent();
     }
     loginEvent() {
         const login = document.getElementById("loginbutton");
@@ -200,7 +203,14 @@ class MultiVideoChatClient {
             if (name) {
                 this.firstPeer.setName(name);
                 const namebox = document.getElementById("namebox");
-                namebox.innerHTML = name;
+                namebox.insertAdjacentText("beforeend", ` ${name}`);
+                this.firstPeer.getUserMedia()
+                    .then((stream) => {
+                    console.log("getUserMedia");
+                })
+                    .catch((reason) => console.error(reason));
+                this.setVisible("login", false);
+                this.setVisible("connect", true);
             }
         });
     }
@@ -208,21 +218,16 @@ class MultiVideoChatClient {
         const connectFirst = document.getElementById("connectbutton");
         connectFirst.addEventListener("click", () => {
             const destIdElement = document.getElementById("destid");
-            const destId = parseInt(destIdElement.value, 10);
-            this.firstPeer.call(destId)
-                .then((stream) => {
-                console.log("stream catched");
-                this.hostStream = stream;
-                return this.hostStream;
-            })
-                .then((stream) => this.showVideoHost(this.hostStream))
-                .catch((reason) => console.error(reason));
-        });
-    }
-    dissconnectEvent() {
-        const dissconnectFirst = document.getElementById("dissconnectbutton");
-        dissconnectFirst.addEventListener("click", () => {
-            this.firstPeer.reset();
+            if (destIdElement.value) {
+                const destId = destIdElement.value;
+                this.firstPeer.call(destId)
+                    .then((stream) => {
+                    this.hostStream = stream;
+                    return this.hostStream;
+                })
+                    .then((stream) => this.showVideoHost(this.hostStream))
+                    .catch((reason) => console.error(reason));
+            }
         });
     }
     showVideoHost(stream) {
@@ -231,12 +236,12 @@ class MultiVideoChatClient {
     }
     setVisible(id, visible) {
         const element = document.getElementById(id);
-        visible ? element.style.display = "block" : element.style.display = "none";
+        visible ? element.removeAttribute("hidden") : element.setAttribute("hidden", "");
     }
 }
 window.onload = () => {
     const client = new MultiVideoChatClient();
-    client.start();
+    client.init();
 };
 
 
