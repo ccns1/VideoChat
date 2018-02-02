@@ -179,17 +179,14 @@ class MultiVideoChatClient {
     constructor() {
         this.hostStream = new MediaStream();
     }
-    start() {
+    init() {
+        this.setVisible("login", true);
+        this.setVisible("connect", false);
         this.firstPeer = new HandlePeer_1.default();
-        this.firstPeer.getUserMedia()
-            .then((stream) => {
-            console.log("getUserMedia");
-        })
-            .catch((reason) => console.error(reason));
         this.firstPeer.opened()
             .then((id) => {
             const idElement = document.getElementById("peerid");
-            idElement.innerHTML = id;
+            idElement.insertAdjacentText("beforeend", ` ${id}`);
         })
             .catch((reason) => console.error(reason));
         this.firstPeer.error()
@@ -197,7 +194,6 @@ class MultiVideoChatClient {
             .catch((reason) => console.error(reason));
         this.loginEvent();
         this.callEvent();
-        this.dissconnectEvent();
     }
     loginEvent() {
         const login = document.getElementById("loginbutton");
@@ -207,7 +203,14 @@ class MultiVideoChatClient {
             if (name) {
                 this.firstPeer.setName(name);
                 const namebox = document.getElementById("namebox");
-                namebox.innerHTML = name;
+                namebox.insertAdjacentText("beforeend", ` ${name}`);
+                this.firstPeer.getUserMedia()
+                    .then((stream) => {
+                    console.log("getUserMedia");
+                })
+                    .catch((reason) => console.error(reason));
+                this.setVisible("login", false);
+                this.setVisible("connect", true);
             }
         });
     }
@@ -227,24 +230,18 @@ class MultiVideoChatClient {
             }
         });
     }
-    dissconnectEvent() {
-        const dissconnectFirst = document.getElementById("dissconnectbutton");
-        dissconnectFirst.addEventListener("click", () => {
-            this.firstPeer.reset();
-        });
-    }
     showVideoHost(stream) {
         const video = document.getElementById("video-host");
         video.src = URL.createObjectURL(stream);
     }
     setVisible(id, visible) {
         const element = document.getElementById(id);
-        visible ? element.style.display = "block" : element.style.display = "none";
+        visible ? element.removeAttribute("hidden") : element.setAttribute("hidden", "");
     }
 }
 window.onload = () => {
     const client = new MultiVideoChatClient();
-    client.start();
+    client.init();
 };
 
 

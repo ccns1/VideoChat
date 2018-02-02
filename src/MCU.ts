@@ -8,18 +8,28 @@ class MultiVideoChat {
     private audio = new HandleAudio();
     private conposedStream = new MediaStream();
 
-    public start() {
-        //canvasをstreamとして取得する
-        this.getComposeCanvas();
+    public init() {
+        //初回にログインの表示を行う
+        if(this.index == 0) {
+            this.setVisible("login", true);
+            this.setVisible("connect", false);
+
+            //canvasをstreamとして取得する
+            this.getComposeCanvas();
+        }
 
         this.peer[this.index] = new HandlePeer();
         this.peer[this.index].opened()
-            .then((id: any) => {
-                const container = <HTMLElement>document.getElementById("peerid");
-                const idElement = document.createElement("div");
-                idElement.textContent = id;
-                idElement.setAttribute("id", `${this.index}`);
-                container.insertAdjacentElement("beforeend", idElement);
+            .then((id: string) => {
+                // idをテーブルに追加する
+                const tbody = <HTMLElement>document.getElementById("dest");
+                const tr = <HTMLElement>document.createElement("tr");
+                tr.setAttribute("id", this.index.toString());
+                tr.insertAdjacentHTML("beforeend", `<td>${id}</td>`);
+                tbody.insertAdjacentElement("beforeend", tr);
+
+                const table = <HTMLElement>document.getElementById("dest-table");
+                table.scrollTop = table.scrollHeight;
             })
             .catch((reason: any) => console.error(reason));
 
@@ -28,13 +38,29 @@ class MultiVideoChat {
             .catch((reason: any) => console.error(reason));
     }
 
-    public showSelf() {
-        this.peer[this.index].getUserMedia()
-            .then((stream: MediaStream) => {
-                this.setSelfStreamForCanvas(stream);
-                this.audio.addStream(stream);
-            })
-            .catch((reason: any) => console.error(reason));
+    public login() {
+        const login = <HTMLInputElement>document.getElementById("loginbutton");
+        login.addEventListener("click", () => {
+            const nameElement: HTMLInputElement = <HTMLInputElement>document.getElementById("name");
+            const name: string = nameElement.value;
+
+            if (name) {
+                this.peer[this.index].setName(name);
+                const namebox = <HTMLElement>document.getElementById("namebox");
+                namebox.insertAdjacentText("beforeend", ` ${name}`);
+
+                this.peer[this.index].getUserMedia()
+                    .then((stream: MediaStream) => {
+                        this.setSelfStreamForCanvas(stream);
+                        this.audio.addStream(stream);
+                    })
+                    .catch((reason: any) => console.error(reason));
+
+                this.setVisible("login", false);
+                this.setVisible("connect", true);
+            }
+        });
+
     }
 
     public waitToCall() {
@@ -48,9 +74,8 @@ class MultiVideoChat {
 
         this.peer[this.index].called(this.conposedStream)
             .then((dest: { name: string, stream: MediaStream }) => {
-                // idの後ろに相手の名前を追加する
-                const container = <HTMLElement>document.getElementById(`${this.index}`);
-                container.insertAdjacentText("beforeend", `: ${dest.name}`);
+                const tr = <HTMLElement>document.getElementById(this.index.toString());
+                tr.insertAdjacentHTML("beforeend", `<td>${dest.name}</td>`);
 
                 this.setStreamForCanvas(dest.stream);
                 const audioStream = this.audio.addStream(dest.stream);
@@ -59,21 +84,20 @@ class MultiVideoChat {
 
                 // 新しくPeerインスタンスを生成し、接続を待つ
                 this.index++;
-                this.start();
-                this.showSelf();
+                this.init();
                 this.waitToCall();
             })
             .catch((reason: any) => console.error(reason));
 
-        this.dissconnectEvent();
+        // this.disconnectEvent();
     }
 
-    private dissconnectEvent() {
-        const dissconnectFirst: HTMLInputElement = <HTMLInputElement>document.getElementById("dissconnectbutton");
-        dissconnectFirst.addEventListener("click", () => {
-            this.peer[this.index].reset();
-        });
-    }
+    // private disconnectEvent() {
+    //     const dissconnectFirst= <HTMLInputElement>document.getElementById("dissconnectbutton");
+    //     dissconnectFirst.addEventListener("click", () => {
+    //         this.peer[this.index].reset();
+    //     });
+    // }
 
     private setSelfStreamForCanvas(stream: MediaStream) {
         const video = <HTMLVideoElement>document.getElementById("video-self");
@@ -111,11 +135,16 @@ class MultiVideoChat {
         this.conposedVideo = canvas.captureStream();
         this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
     }
+
+    private setVisible(id: string, visible: boolean) {
+        const element = <HTMLElement>document.getElementById(id);
+        visible ? element.removeAttribute("hidden") : element.setAttribute("hidden", "");
+    }
 }
 
 window.onload = () => {
     const multi: MultiVideoChat = new MultiVideoChat();
-    multi.start();
-    multi.showSelf();
+    multi.init();
+    multi.login();
     multi.waitToCall();
 };

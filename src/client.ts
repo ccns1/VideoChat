@@ -5,19 +5,16 @@ class MultiVideoChatClient {
     private context: any;
     private hostStream = new MediaStream();
 
-    public start() {
-        this.firstPeer = new HandlePeer();
+    public init() {
+        this.setVisible("login", true);
+        this.setVisible("connect", false);
 
-        this.firstPeer.getUserMedia()
-            .then((stream: MediaStream) => {
-                console.log("getUserMedia");
-            })
-            .catch((reason: any) => console.error(reason));
+        this.firstPeer = new HandlePeer();
 
         this.firstPeer.opened()
             .then((id: any) => {
                 const idElement = <HTMLElement>document.getElementById("peerid");
-                idElement.innerHTML = id;
+                idElement.insertAdjacentText("beforeend", ` ${id}`);
             })
             .catch((reason: any) => console.error(reason));
 
@@ -27,12 +24,10 @@ class MultiVideoChatClient {
 
         this.loginEvent();
         this.callEvent();
-        this.dissconnectEvent();
+        // this.disconnectEvent();
     }
 
     private loginEvent() {
-        // this.setVisible("connect", false);
-
         const login = <HTMLInputElement>document.getElementById("loginbutton");
         login.addEventListener("click", () => {
             const nameElement: HTMLInputElement = <HTMLInputElement>document.getElementById("name");
@@ -40,11 +35,17 @@ class MultiVideoChatClient {
 
             if (name) {
                 this.firstPeer.setName(name);
-                const namebox: HTMLElement = <HTMLElement>document.getElementById("namebox");
-                namebox.innerHTML = name;
+                const namebox = <HTMLElement>document.getElementById("namebox");
+                namebox.insertAdjacentText("beforeend", ` ${name}`);
 
-                // this.setVisible("login", false);
-                // this.setVisible("connect", true);
+                this.firstPeer.getUserMedia()
+                    .then((stream: MediaStream) => {
+                        console.log("getUserMedia");
+                    })
+                    .catch((reason: any) => console.error(reason));
+
+                this.setVisible("login", false);
+                this.setVisible("connect", true);
             }
         });
     }
@@ -78,15 +79,15 @@ class MultiVideoChatClient {
         });
     }
 
-    private dissconnectEvent() {
-        const dissconnectFirst: HTMLInputElement = <HTMLInputElement>document.getElementById("dissconnectbutton");
-        dissconnectFirst.addEventListener("click", () => {
-            this.firstPeer.reset();
+    // private disconnectEvent() {
+    //     const dissconnectFirst: HTMLInputElement = <HTMLInputElement>document.getElementById("dissconnectbutton");
+    //     dissconnectFirst.addEventListener("click", () => {
+    //         this.firstPeer.reset();
 
-            // this.setVisible("login", true);
-            // this.setVisible("connect", false);
-        });
-    }
+    //         // this.setVisible("login", true);
+    //         // this.setVisible("connect", false);
+    //     });
+    // }
 
     private showVideoHost(stream: MediaStream) {
         const video = <HTMLVideoElement>document.getElementById("video-host");
@@ -94,12 +95,12 @@ class MultiVideoChatClient {
     }
 
     private setVisible(id: string, visible: boolean) {
-        const element: HTMLElement = <HTMLElement>document.getElementById(id);
-        visible ? element.style.display = "block" : element.style.display = "none";
+        const element = <HTMLElement>document.getElementById(id);
+        visible ? element.removeAttribute("hidden") : element.setAttribute("hidden", "");
     }
 }
 
 window.onload = () => {
     const client: MultiVideoChatClient = new MultiVideoChatClient();
-    client.start();
+    client.init();
 };

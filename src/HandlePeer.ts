@@ -17,14 +17,14 @@ class HandlePeer {
         this.peer = new Peer(peerId, options);
     }
 
-    public opened() {
+    public opened(): Promise<string> {
         console.log('open');
         return new Promise((resolve, reject) => {
             this.peer.on('open', (id: string) => resolve(id));
         });
     }
 
-    public error() {
+    public error(): Promise<any> {
         return new Promise((resolve, reject) => {
             this.peer.on('error', (error: any) => resolve(error))
         });

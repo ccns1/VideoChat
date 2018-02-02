@@ -181,52 +181,62 @@ class MultiVideoChat {
         this.audio = new HandleAudio_1.default();
         this.conposedStream = new MediaStream();
     }
-    start() {
-        this.getComposeCanvas();
+    init() {
+        if (this.index == 0) {
+            this.setVisible("login", true);
+            this.setVisible("connect", false);
+            this.getComposeCanvas();
+        }
         this.peer[this.index] = new HandlePeer_1.default();
         this.peer[this.index].opened()
             .then((id) => {
-            const container = document.getElementById("peerid");
-            const idElement = document.createElement("div");
-            idElement.textContent = id;
-            idElement.setAttribute("id", `${this.index}`);
-            container.insertAdjacentElement("beforeend", idElement);
+            const tbody = document.getElementById("dest");
+            const tr = document.createElement("tr");
+            tr.setAttribute("id", this.index.toString());
+            tr.insertAdjacentHTML("beforeend", `<td>${id}</td>`);
+            tbody.insertAdjacentElement("beforeend", tr);
+            const table = document.getElementById("dest-table");
+            table.scrollTop = table.scrollHeight;
         })
             .catch((reason) => console.error(reason));
         this.peer[this.index].error()
             .then((error) => console.error(error))
             .catch((reason) => console.error(reason));
     }
-    showSelf() {
-        this.peer[this.index].getUserMedia()
-            .then((stream) => {
-            this.setSelfStreamForCanvas(stream);
-            this.audio.addStream(stream);
-        })
-            .catch((reason) => console.error(reason));
+    login() {
+        const login = document.getElementById("loginbutton");
+        login.addEventListener("click", () => {
+            const nameElement = document.getElementById("name");
+            const name = nameElement.value;
+            if (name) {
+                this.peer[this.index].setName(name);
+                const namebox = document.getElementById("namebox");
+                namebox.insertAdjacentText("beforeend", ` ${name}`);
+                this.peer[this.index].getUserMedia()
+                    .then((stream) => {
+                    this.setSelfStreamForCanvas(stream);
+                    this.audio.addStream(stream);
+                })
+                    .catch((reason) => console.error(reason));
+                this.setVisible("login", false);
+                this.setVisible("connect", true);
+            }
+        });
     }
     waitToCall() {
         this.peer[this.index].called(this.conposedStream)
             .then((dest) => {
-            const container = document.getElementById(`${this.index}`);
-            container.insertAdjacentText("beforeend", `: ${dest.name}`);
+            const tr = document.getElementById(this.index.toString());
+            tr.insertAdjacentHTML("beforeend", `<td>${dest.name}</td>`);
             this.setStreamForCanvas(dest.stream);
             const audioStream = this.audio.addStream(dest.stream);
             this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
             this.conposedStream.addTrack(audioStream.getAudioTracks()[0]);
             this.index++;
-            this.start();
-            this.showSelf();
+            this.init();
             this.waitToCall();
         })
             .catch((reason) => console.error(reason));
-        this.dissconnectEvent();
-    }
-    dissconnectEvent() {
-        const dissconnectFirst = document.getElementById("dissconnectbutton");
-        dissconnectFirst.addEventListener("click", () => {
-            this.peer[this.index].reset();
-        });
     }
     setSelfStreamForCanvas(stream) {
         const video = document.getElementById("video-self");
@@ -256,11 +266,15 @@ class MultiVideoChat {
         this.conposedVideo = canvas.captureStream();
         this.conposedStream.addTrack(this.conposedVideo.getVideoTracks()[0]);
     }
+    setVisible(id, visible) {
+        const element = document.getElementById(id);
+        visible ? element.removeAttribute("hidden") : element.setAttribute("hidden", "");
+    }
 }
 window.onload = () => {
     const multi = new MultiVideoChat();
-    multi.start();
-    multi.showSelf();
+    multi.init();
+    multi.login();
     multi.waitToCall();
 };
 
